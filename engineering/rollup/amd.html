@@ -1,0 +1,6 @@
+<script src="node_modules/requirejs/require.js"></script>
+<script>
+  require(['dist/bundle.umd.js'], utils => {
+    console.log('amd requirejs', utils.whoAmI)
+  })
+</script>

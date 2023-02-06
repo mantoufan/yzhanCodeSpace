@@ -1,0 +1,15 @@
+<div id=”app“>
+  <input v-model="data.message" />
+  <button @click="reverse">{{data.message}}</button>
+</div>
+<script>
+  const data = reactive({
+    message: 'Hello Vue 3!!'
+  })
+  function reverse() {
+    data.message = data.message.split('').reverse().join('')
+  }
+  const template = app.innerHTML
+  const render = compile(template)
+  effect(render)
+</script>

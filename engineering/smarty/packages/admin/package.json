@@ -1,0 +1,16 @@
+{
+  "name": "@smarty-monorepo/admin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@smarty-monorepo/utils": "workspace:^1.0.0",
+    "steve": "^0.5.10"
+  }
+}

@@ -1,0 +1,10 @@
+<!-- <script src="./dist/bundle.umd.js"></script> -->
+<!-- <script>
+  console.log(utils.whoAmI)
+</script> -->
+<script src="./node_modules/requirejs/require.js"></script>
+<script>
+  require(['./dist/bundle.umd.js'], utils => {
+    console.log('amd requrejs', utils.whoAmI)
+  })
+</script>

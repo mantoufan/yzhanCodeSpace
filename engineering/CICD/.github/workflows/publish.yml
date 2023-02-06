@@ -1,0 +1,35 @@
+name: Push to Aliyun
+# 触发时机
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+# 一个 action 可以由 多个 jobs 组成
+# 多个 jobs 可以串行，也可以并行处理
+# 每个 job 内部是一个单独的环境
+jobs:
+  build:
+    # 定义系统镜像
+    runs-on: ubuntu-latest
+    steps:
+    # 下载代码
+    - uses: actions/checkout@v2
+    # 安装 Node.js
+    - uses: actions/setup-node@v
+      with:
+        node-version: 14
+    # 编译
+    - run: yarn
+    - run: yarn build
+    # 部署到阿里云
+    - name: Deploy to Aliyun
+      # 模仿 scp 远程拷贝
+      uses: easingthemes/ssh-deploy@v2.1.1
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.ACCESS_TOKEN }}
+        ARGS: "-AVZR --delete"
+        SOURCE: "build/"
+        REMOTE_HOST: ${{ secrets.SERVER_IP }}
+        REMOTE_USER: "root"
+        TARGET: ${{ secrets.TARGET }}

@@ -1,0 +1,21 @@
+<!-- <script src='dist/bundle.js'></script> -->
+<script src='src/index.js' type="module"></script>
+<script>
+  // bundle.js 原型的拼接结果
+  // (function(list) {
+  //   function require(file) {
+  //     // TODO file 根据 file 不同，更改不同 code
+  //     var exports = {}
+  //     // IIFE 自运行函数：不污染全局变量
+  //     ;(function(exports, code) {
+  //       eval(code);
+  //     })(exports, list[file])
+  //     return exports
+  //   }
+  //   // 入口
+  //   require('index.js')
+  // })({
+  //   './add.js': 'exports.default = function (a, b) {return a + b}',
+  //   'index.js': "var add = require('./add.js').default;console.log(require);console.log(add(2, 4))",
+  // })
+</script>

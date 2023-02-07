@@ -1,0 +1,12 @@
+<div id=""></div>
+<script>
+
+
+  const template = app.innerHTML
+  const render = complie(template)
+
+  effect(() => {
+    const vnode = render.call(data)
+    renderer.render(vnode, document.getElementById('app'))
+  })
+</script>

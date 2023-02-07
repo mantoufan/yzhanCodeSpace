@@ -6,7 +6,7 @@ import './style.css'
 createApp({
   data() {
     return {
-      title: 'hello, mini-vue!'
+      title: ['hello', 'mini-vue!']
     };
   },
   render() {
@@ -15,10 +15,10 @@ createApp({
     // return h3
     // 返回 VNode
     if (Array.isArray(this.title)) {
-      return createApp(
+      return createVNode(
         'h3', 
         {}, 
-        this.title.map(t => createApp('p', {}, t))
+        this.title.map(t => createVNode('p', {}, t))
       )
     } else {
       return createVNode('h3', {}, this.title)
@@ -26,7 +26,7 @@ createApp({
   },
   mounted() {
     setTimeout(() => {
-      this.title = ['wow', 'data change!']
+      this.title = ['wow', 'data change!', 'lala']
     }, 2000)
   }
 }).mount('#app')

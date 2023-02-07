@@ -8,7 +8,8 @@ export function createRenderer(options) {
   const { 
     createElement: hostCreateElement,
     insert: hostInsert,
-    setElementText: hostSetElementText
+    setElementText: hostSetElementText,
+    remove: hostRemove,
   } = options
   // render 负责渲染组件内容
   const render = (vnode, container) => {
@@ -122,7 +123,7 @@ export function createRenderer(options) {
       mountElement(n2, container)
     } else {
       // 更新阶段
-      patchElement(n1, n2,)
+      patchElement(n1, n2)
     }
   }
 
@@ -160,8 +161,32 @@ export function createRenderer(options) {
           newCh.forEach(childNode => patch(null, childNode, el))
         }
       } else {
-
+        if (typeof newCh === 'string') {
+          // 之前是子元素数组，变化之后是文本内容
+          hostSetElementText(el, newCh)
+        } else {
+          // 变化前后都是子元素数组
+          updateChildren(oldCh, newCh, el)
+        }
       }
+    }
+  }
+
+  const updateChildren = (oldCh, newCh, parentElement) => {
+    // A B C D E
+    // A C D E
+    // 获取较短数组的长度
+    const len = Math.min(oldCh.length, newCh.length)
+    for (let i = 0; i < len; i++) {
+      patch(oldCh[i], newCh[i])
+    }
+    // 获取较长数组中剩余的部分
+    if (newCh.length > oldCh.length) {
+      // 新数组较长，剩余的批量创建追加
+      newCh.slice(len).forEach(child => patch(null, child, parentElement))
+    } else {
+      // 老数组较长，剩余的批量删除
+      oldCh.slice(len).forEach(child => hostRemove(child.el))
     }
   }
 

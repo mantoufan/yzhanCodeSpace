@@ -16,6 +16,11 @@ const rendererOptions = {
   },
   createElement(tag) {
     return document.createElement(tag)
+  },
+  remove(el) {
+    const parent = el.parentNode
+    console.log(el, el.parentNode, el.parentElement)
+    if (parent) parent.removeChild(el)
   }
 }
 

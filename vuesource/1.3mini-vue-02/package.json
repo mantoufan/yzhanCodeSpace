@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watchAll"
+    "test": "jest --watchAll --findRelatedTests ./__test__/renderer.spec.js"
   },
   "keywords": [],
   "author": "",

@@ -1,4 +1,4 @@
-import { generate } from "../src/compiler/generate";
+import { generate, setCurrentOptions } from "../src/compiler/generate";
 
 it("generate element with text", () => {
   const ast = [
@@ -33,7 +33,7 @@ it("generate element with expression", () => {
   const code = generate(ast);
   expect(code).toMatch(`return this._c('div',null,this.foo)`);
 });
-it("generate element with muti children", () => {
+it("generate element with multi children", () => {
   const ast = [
     {
       type: "Element",
@@ -57,3 +57,59 @@ it("generate element with muti children", () => {
     `return this._c('div',null,[this._v('foo'),this._c('span',null,'bar')])`
   );
 });
+// <input type="text" v-model="title" @click="clear"></input>
+it("generate element with props", () => {
+  const ast = [{
+    tag: "input",
+    type: "Element",
+    props: [
+      {
+        type: "Attribute",
+        name: "type",
+        value: "text",
+      },
+      {
+        type: "Directive",
+        name: "v-model",
+        value: "title",
+      },
+      {
+        type: "Event",
+        name: "click",
+        value: "clear",
+      },
+    ],
+    children: [],
+    isUnary: false,
+  }]
+  const options = {
+    data() {
+      return {
+        title: 0
+      }
+    },
+    methods: {
+      clear(){
+        title = ''
+      }
+    }
+	}
+  setCurrentOptions(options) // pass function clear() to generator
+  const code = generate(ast)
+  // <input type="text" v-model="title" @click="clear"></input>
+  /* {
+    attrs: { type: 'text' },
+    directions: [ { name: 'v-model', value: '(title)', expression: 'title' } ],
+    on: {
+      click: "function () {\n        title = '';\n      }"
+    }
+  }*/
+  expect(code).toMatch(
+    `return this._c('input',`+
+    `{'attrs':{'type':'text'},`+
+     `'directions':[`+
+                    `{'name':'v-model','value':'(title)','expression':'title'}`+
+                  '],'+
+     `'on':{'click':'function () {\\n        title = '';\\n      }'}})`
+  )
+})

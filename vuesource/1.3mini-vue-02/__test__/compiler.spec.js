@@ -57,7 +57,7 @@ describe("compiler", () => {
           value: "foo",
         },
         {
-          type: "Attribute",
+          type: "Directive",
           name: "v-show",
           value: "isShow",
         },
@@ -104,6 +104,33 @@ describe("compiler", () => {
     })
   });
   
+  it("parse props and directive", () => {
+    const template = '<input type="text" v-model="title" @click="clear"></input>';
+    const ast = parse(template);
+    expect(ast[0]).toEqual({
+      tag: "input",
+      type: "Element",
+      props: [
+        {
+          type: "Attribute",
+          name: "type",
+          value: "text",
+        },
+        {
+          type: "Directive",
+          name: "v-model",
+          value: "title",
+        },
+        {
+          type: "Event",
+          name: "click",
+          value: "clear",
+        },
+      ],
+      children: [],
+      isUnary: false,
+    });
+  });
 });
 
 

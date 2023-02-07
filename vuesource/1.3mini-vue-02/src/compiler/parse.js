@@ -45,7 +45,7 @@ export function parseChildren(context, stack) {
 function isEnd(context, stack) {
   // 模板解析完毕
   // 遇到结束标签，并且 stack 中存在同名标签
-  return context.source === '' || stack.length > 0 && context.source.startsWith('</' + stack[stack.length - 1].tag)
+  return context.source === '' || context.source === void 0 || stack.length > 0 && context.source.startsWith('</' + stack[stack.length - 1].tag)
 }
 
 // <div id="xxx" v-if="yyy"></div>
@@ -110,7 +110,7 @@ function parseAttrs(context) {
   while (context.source.startsWith('>') === false && context.source.startsWith('/>') === false) {
     const match = /^[^\s\/>=]+/.exec(context.source)
     // 获取属性名称
-    const name = match[0]
+    let name = match[0]
     // 消费属性名称 + 等号
     context.advance(name.length + 1)
     // 消费等号后可能的空格
@@ -139,8 +139,20 @@ function parseAttrs(context) {
     }
     // 消费下个属性之前的空格
     context.advanceSpaces()
+    
+    /* 新增代码：start */
+    let type = 'Attribute' // Attribute: type etc.
+    const firstChar = name[0], secondChar= name[1]
+    if (firstChar === '@') {// Event: @click etc.
+      type = 'Event'
+      name = name.substring(1)
+    } else if (firstChar + secondChar === 'v-') {// Directive: v-model etc.
+      type = 'Directive'
+    }
+    /* 新增代码：end */
+
     props.push({
-      type: 'Attribute',
+      type,
       name,
       value
     })

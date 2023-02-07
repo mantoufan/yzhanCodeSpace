@@ -1,3 +1,9 @@
+/** 新增代码：start */
+let currentOptions = Object.create(null)
+export function setCurrentOptions (options) {
+  currentOptions = options
+}
+/** 新增代码: end */
 // 只需要生成 render 函数的 return 部分
 // this._c('div', {}, 'xxx')
 // this._c('div', null, [...])
@@ -35,7 +41,41 @@ function genElement(ast) {
 
 // todo
 function genProps(ast) {
-  return null
+  const attrs = Object.create(null)
+  const directions = []
+  const on = Object.create(null)
+
+  const props = ast.props
+  if (props.length === 0) return null
+
+  props.forEach(prop => {
+    const { type, name, value } = prop
+    switch (type) {
+      case 'Attribute':
+        attrs[name] = value;
+      break;
+      case 'Directive':
+        directions.push(processDirective({
+          name,
+          value
+        }))
+      break;
+      case 'Event':
+        if (currentOptions?.methods[value] === void 0) return
+        const sourceCode =  currentOptions.methods[value].toString()
+        // transfrom to anonymous function:
+        // clear(){title=''} => function(){title=''}
+        on[name] = 'function ' + sourceCode.substring(sourceCode.indexOf('('))
+      break
+      default:
+    }
+  })
+
+  return JSON.stringify({
+    attrs,
+    directions,
+    on
+  }).replace(/"/g, '\'')
 }
 
 function genChildren(ast) {
@@ -66,3 +106,22 @@ function genText(ast) {
   }
   return `this._v(${content})`
 }
+
+/* 新增代码：start */
+function processDirective(directive) {
+  const { name: sourceName, value: sourceValue } = directive
+  let name = sourceName
+  let value = sourceValue
+  let expression = sourceValue
+  switch (name) {
+    case 'v-model':
+      value = `(${sourceValue})`
+    break
+  }
+  return {
+    name,
+    value,
+    expression
+  }
+}
+/* 新增代码：end */

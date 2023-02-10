@@ -1,7 +1,7 @@
 import { createVNode, createTextNode } from './vnode.js'
 import { compile } from '../compiler'
 export const Text = Symbol('text')
-export function createRenderer (options) {
+export const createRenderer = options => {
   const {
     createText,
     createElement,
@@ -19,6 +19,7 @@ export function createRenderer (options) {
         // 挂载文本节点
         mountTextNode(vnode, container)
       } else if (typeof tag === 'object') {
+        // 挂载组件
         mountComponent(vnode, container)
       }
   }

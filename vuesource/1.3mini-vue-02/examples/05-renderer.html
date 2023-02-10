@@ -1,12 +1,21 @@
-<div id=""></div>
+<div id="app">
+  <input v-model="data.message" />
+  <button @click="reverse">{{data.message}}</button>
+</div>
 <script>
-
-
+  const data = reactive({
+    message: 'Helloe Vue 3!!'
+  })
+  function reverse() {
+    data.message = data.message.split('').reverse().join('')
+  }
   const template = app.innerHTML
   const render = complie(template)
 
   effect(() => {
+    // { type: 'div', children: 'foo' }
     const vnode = render.call(data)
+    // 渲染器的作用：执行渲染函数，将虚拟 DOM，转换成真实 DOM，挂载到宿主元素中
     renderer.render(vnode, document.getElementById('app'))
   })
 </script>

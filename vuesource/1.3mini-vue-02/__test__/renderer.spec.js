@@ -82,6 +82,15 @@ it("render component with dynamic data", () => {
 it("createApp of renderer", () => {
   const renderer = createRenderer(nodeOps);
   const container = document.createElement("div");
+  // Todo:
+  // 1. 实现 createApp，创建 rootComponent
+  // 2. 返回 mount 方法指定宿主，将 rootComponent 挂载到 宿主 container
+  // 3. 实现 renderer 的单例模式
+  //    用户不关心 renderer 只需从 runtime-dom 等中 import 工厂函数
+  // Think：
+  // 1. 为什么 Vue 需要 diff 算法，与 React 有什么不同 ？
+  // 2. Vue 3 diff 范围：组件级
+  //    为什么 React 不可以做到组件级，而采用了 React Fiber 链表 ？
   renderer.createApp({
     template: "<div>{{title}}</div>",
     data() {

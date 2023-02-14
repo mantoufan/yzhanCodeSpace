@@ -1,4 +1,5 @@
 import { createFiber } from "./ReactFiber"
+import { scheduleUpdateOnFiber } from "./ReactFiberWorkLoop"
 
 function ReactDOMRoot(internalRoot) {
   this._internalRoot = internalRoot

@@ -1,8 +1,8 @@
-import { FunctionComponent, HostComponent } from "./ReactWorkTags"
-import { isFn, isStr, Placement } from "./utils"
+import { ClassComponent, FunctionComponent, HostComponent, HostText, Fragment } from "./ReactWorkTags"
+import { isFn, isStr, isUndefined, Placement } from "./utils"
 
 export function createFiber(vnode, returnFiber) {
-  console.log('vnode', vnode)
+  // console.log('vnode', vnode)
   const fiber = {
     // 类型
     type: vnode.type,
@@ -16,20 +16,26 @@ export function createFiber(vnode, returnFiber) {
     // 第一个子 Fiber
     child: null,
     // 下一个兄弟 Fiber
-    sibiling: null,
+    sibling: null,
     return: returnFiber,
     flags: Placement,
     // 记录节点在当前层级下的位置
     index: null
   }
 
-  const { type } = vnode.tag
+  const { type } = vnode
   
   if (isStr(type)) {
     fiber.tag = HostComponent
   } else if (isFn(type)) {
     // todo 区分函数组件和类组件
-    fiber.tag = FunctionComponent
+    fiber.tag = type.prototype.isReactComponent ? ClassComponent : FunctionComponent
+  } else if (isUndefined(type)) {
+    fiber.tag = HostText
+    fiber.props = { children: vnode }
+  } else {
+    fiber.tag = Fragment
   }
-
+  
+  return fiber
 }

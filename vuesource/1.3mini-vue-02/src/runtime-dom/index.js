@@ -10,12 +10,23 @@ export const nodeOps = {
   },
   patchProp(el, key, prevVaule, curValue) {
     if (key.startsWith('on')) {
-      el.addEventListener(key.substring(2).toLowerCase(), curValue)
+      const eventName = key.substring(2).toLowerCase()
+      if (prevVaule) {
+        el.removeEventListener(eventName, prevVaule)
+      }
+      el.addEventListener(eventName, curValue)
     } else {
-      el.setAttribute(key, curValue)
+      if (curValue) {
+        el.setAttribute(key, curValue)
+      } else {
+        el.removeAttribute(key)
+      }
     }
   },
   setElementText(el, text) {
     el.textContent = text
+  },
+  setText(textNode, text) {
+    textNode.nodeValue = text
   }
 }

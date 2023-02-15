@@ -19,15 +19,31 @@ export function isFn(fn) {
 export function isArray(arr) {
   return Array.isArray(arr)
 }
-export function updateNode(node, nextVal) {
+export function isUndefined(s) {
+  return s === void 0
+}
+// old props { className: 'red', id： '_id' }
+// new props { className: 'green' }
+export function updateNode(node, prevVal, nextVal) {
+  Object.keys(prevVal).forEach(k => {
+    if (k === 'children') {
+      if (isStingOrNumber(nextVal[k])) node.textContent = ''
+    } else if (k.slice(0, 2) === 'on') {
+      const eventName = k.slice(2).toLowerCase()
+      node.removeEventListener(eventName, prevVal[k])
+    } else {
+      if (nextVal[k] === void 0) node[k] = ''
+    }
+  })
   Object.keys(nextVal).forEach(k => {
     if (k === 'children') {
       if(isStingOrNumber(nextVal[k])) node.textContent = nextVal[k]
+    } else if (k.slice(0, 2) === 'on') {
+      // fack 事件
+      const eventName = k.slice(2).toLowerCase()
+      node.addEventListener(eventName, nextVal[k])
     } else {
       node[k] = nextVal[k]
     }
   })
-}
-export function isUndefined(s) {
-  return s === void 0
 }

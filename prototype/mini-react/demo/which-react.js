@@ -1,16 +1,21 @@
+// import { useState } from 'react'
+// import ReactDOM from 'react-dom/client';
+
  import {
   Component,
-  // useReducer,
-  // useState,
+  useReducer,
+  useState,
   // useEffect,
   // useLayoutEffect
  } from '../src/react'
- import ReactDOM from '../src/react-dom'
+import ReactDOM from '../src/react-dom'
 
- export {
+
+export {
   ReactDOM,
   Component,
-  // useReducer,
+  useReducer,
+  useState
   // useState,
   // useEffect,
   // useLayoutEffect

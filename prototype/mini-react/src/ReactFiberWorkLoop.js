@@ -72,6 +72,7 @@ function commitRoot() {
 
 function commitWorker(workInProgress) {
   if (workInProgress === null) return
+  console.log('workInProgress', workInProgress)
   // 1. 提交自己（将 vnode 更新到真实 dom）
   const parentNode = getParentNode(workInProgress.return)
   const { flags, stateNode } = workInProgress
@@ -91,7 +92,6 @@ function commitWorker(workInProgress) {
   commitWorker(workInProgress.child)
   // 3. 提交兄弟
   commitWorker(workInProgress.sibling)
-
 }
 
 function getParentNode(workInProgress) {
@@ -104,7 +104,6 @@ function getParentNode(workInProgress) {
 
 function commitDeletions(deletions, parentNode) {
   const n = deletions.length
-  console.log(n)
   for (let i = 0; i < n; i++) {
     parentNode.removeChild(getStateNode(deletions[i]))
   }

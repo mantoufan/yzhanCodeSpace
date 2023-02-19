@@ -1,0 +1,12 @@
+{
+  "name": "http",
+  "version": "1.0.0",
+  "description": "物理层      数据链路层 Mac address",
+  "main": "client.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

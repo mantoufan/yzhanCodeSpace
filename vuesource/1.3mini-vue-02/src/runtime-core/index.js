@@ -13,7 +13,8 @@ export const createRenderer = options => {
   const patch = (oldVNode, vnode, container) => {
     // ... 之前 render 中 if 部分的代码
     const { tag } = vnode
-    if (oldVNode && oldVNode.tag !== tag) {
+    // 类型判断
+    if (oldVNode && oldVNode.tag !== tag) { // 如果类型不同，卸载原节点
       unmount(oldVNode)
       oldVNode = null
     }
@@ -113,27 +114,29 @@ export const createRenderer = options => {
   }
 
   // 更新元素
-  const patchElement = (oldVNode, vnode, container) => {
+  const patchElement = (oldVNode, vnode) => {
     const el = (vnode.el = oldVNode.el)
     // 更新属性
     const { props: oldProps = Object.create(null) } = oldVNode
     const { props = Object.create(null) } = vnode
+    // 属性不同更新
     Object.keys(props).forEach(key => {
       if (oldProps[key] === void 0 || oldProps[key] !== props[key]) {
         patchProp(el, key, oldProps[key], props[key])
       }
     })
+    // 老属性中不在新属性中的属性删除
     Object.keys(oldProps).forEach(key => {
       if (props[key] === void 0) {
         patchProp(el, key, oldProps[key], null)
       }
     })
     // 更新子节点（文本节点 / 元素节点）
-    patchChildren(oldVNode, vnode, container)
+    patchChildren(oldVNode, vnode)
   }
 
   // 更新子节点
-  const patchChildren = (oldVNode, vnode, container) => {
+  const patchChildren = (oldVNode, vnode) => {
     const el = vnode.el = oldVNode.el
     if (typeof vnode.children === 'string') {
       if (typeof oldVNode.children === 'string') {
@@ -141,7 +144,7 @@ export const createRenderer = options => {
         setElementText(oldVNode.el, vnode.children)
       } else {
         // 老：数组，新：文本
-        // 卸载老节点的子节点
+        // 卸载老节点的子节点，未来还可以删除副作用等
         oldVNode.children.forEach(child => unmount(child))
         // 设置新节点的文本
         setElementText(oldVNode.el, vnode.children)
@@ -175,11 +178,6 @@ export const createRenderer = options => {
         unmount(oldVNode.children[i])
       }
     }
-    // while (++i < gt ? m : n) {
-    //   if (oldVNode.children[i] !== vnode.children[i]) {
-    //     patch(oldVNode.children[i], vnode.children[i], container)
-    //   }
-    // }
   }
   // renderer
   return {

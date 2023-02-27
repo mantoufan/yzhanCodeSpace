@@ -77,7 +77,12 @@ function commitWorker(workInProgress) {
   const parentNode = getParentNode(workInProgress.return)
   const { flags, stateNode } = workInProgress
   if (flags & Placement && stateNode) { // 如果是 Placement
-    parentNode.appendChild(stateNode) // parentNode 是父 DOM
+    // 1 
+    // 0 1 2 3 4
+    // 2 1 3 4
+    const before = getHostSibling(workInProgress.sibling)
+    console.log('before', before)
+    insertOrAppendPlacementNode(stateNode, before, parentNode)
   }
   if (flags & Update && stateNode) { // 节点更新
     // 更新属性
@@ -116,4 +121,19 @@ function getStateNode(fiber) {
     tmp = tmp.child
   }
   return tmp.stateNode
+}
+
+function getHostSibling(sibling) {
+  while (sibling) {
+    if (sibling.stateNode && !(sibling.flags & Placement)) { // 存在并且不是新增
+      return sibling.stateNode
+    }
+    sibling = sibling.sibling
+  }
+  return null
+}
+
+function insertOrAppendPlacementNode(stateNode, before, parentNode) {
+  if (before) parentNode.insertBefore(stateNode, before)
+  else parentNode.appendChild(stateNode)
 }

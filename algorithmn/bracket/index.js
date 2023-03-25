@@ -4,12 +4,12 @@ module.exports = isValid = ar => {
   const stack = []
   for (let i = 0; i < n; i++) {
     const char = ar[i]
-    if (map.has(char)) {
+    if (map.has(char)) { // 归约 reduce
       // case1 char in map: ) } ]
       // () [] {}
       // ) -> ( ] -> [ } -> {
       if (stack.pop() !== map.get(char)) return false
-    } else {
+    } else { // 移入 shift
       // case2 char out map: ( { [
       stack.push(char) // 入栈
     }

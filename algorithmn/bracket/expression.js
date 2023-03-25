@@ -5,7 +5,7 @@ exports.parse = function parse(str) {
   const list = []
   while (r = Reg.exec(str)) {
     list.push({
-      type: r[1] ? 'number' : r[0],
+      type: r[1] ? 'Number' : r[0],
       value: r[1] ?? ''
     })
   }
@@ -17,23 +17,33 @@ exports.parse = function parse(str) {
 }
 
 // 流式处理，处理一个就往外输出
+// 一定带括号的四则运算
 function expressionParse(list) {
   const stack = []
   const n = list.length
+  
+  const shift = symbol => {
+    stack.push(symbol)
+  }
+
+  const reduce = () => {
+    const symbol = {
+      type: '',
+      children: []
+    }
+    let child
+    while ((child = stack.pop()).type !== '(') {
+      symbol.children.unshift(child) // 归约 reduce （合并）
+    }
+    stack.push(symbol) // 移入 shift （放回去）
+  }
+
   for (let i = 0; i < n; i++) {
     const char = list[i]
-    if (char.type === ')') {
-      const symbol = {
-        type: '',
-        children: []
-      }
-      let child
-      while ((child = stack.pop()).type !== '(') {
-        symbol.children.unshift(child) // 归约 reduce （合并）
-      }
-      stack.push(symbol) // 移入 shift （放回去）
-    } else {
-      stack.push(char)
+    if (char.type === ')') { // reduce 遇到 ）
+      reduce()
+    } else { // shift 其它的都 push 到栈里面
+      shift(char)
     }
   }
   return stack
@@ -44,11 +54,11 @@ function expressionParse(list) {
 /* Expression 的 closure
    <Expression> := <Additive>
      <Additive> := <Multiplicative> |
-                   <Multiplicative> "+" <Additive> |
-                   <Multiplicative> "-" <Additive>
+                   <Additive> "+" <Multiplicative> |
+                   <Additive> "-" <Multiplicative>
 <Multiplicative> := <Primary> |
-                   <Primary> "*" <Multiplicative> |
-                   <Primary> "/" <Multiplicative>
+                   <Multiplicative> "*" <Primary> |
+                   <Multiplicative> "/" <Primary>
       <Primary> := <Number> |
                    "(" <Expression> ")"
 terminal symbol := 终结符 <Number>
@@ -63,12 +73,12 @@ non-terminial symbol := 非终结符 "("
 */
 const map = new Map([
   ['Expression', [['Additive']]],
-  ['Additive', [['Additive'], ['Multiplicative'], ['Multiplicative', '+', 'Additive'], ['Multiplicative', '-', 'Additive']]],
-  ['Multiplicative', [['Primary'], ['Primary', '*', 'Multiplicative'], ['Primary', '/', 'Multiplicative']]],
+  ['Additive', [['Additive'], ['Multiplicative'], ['Additive', '+', 'Multiplicative'], ['Additive', '-', 'Multiplicative']]],
+  ['Multiplicative', [['Primary'], ['Multiplicative', '*', 'Primary'], ['Multiplicative', '/', 'Primary']]],
   ['Primary', [['Number'], ['(', 'Expression', ')']]]
 ])
 
-exports.closure = symbol => {
+const getClosure = symbol => { // 表示当前的符号
   const rules = []
   const pool = [symbol]
   const visited = new Set()
@@ -76,13 +86,91 @@ exports.closure = symbol => {
     const current = pool.shift()
     if (map.has(current) === false) continue
     if (visited.has(current) === true) continue
-    visited.add(current)
-    map.get(current).forEach(newRules => {
-      if (visited.has(newRules[0]) === false) rules.push(newRules)
-      pool.push(newRules[0])
+    const ruleBodys = map.get(current)
+    ruleBodys.forEach(ruleBody => {
+      if (visited.has(ruleBody[0]) === true) return 
+      rules.push({ruleBody, $reduce: current})
+      pool.push(ruleBody[0])
     })
+    visited.add(current)
   }
   return rules
+}
+
+/** 用 states 存储 */
+const visited = new Map()
+const getClosureState = function(state) {
+  visited.set(JSON.stringify(state), state)
+  for (const key of Object.keys(state)) {
+    if (key.startsWith('$')) continue
+    const closure = getClosure(key)
+    closure.forEach(item => {
+      const {ruleBody, $reduce: reduce} = item
+      current = state
+      ruleBody.forEach(symbol => {
+        if (current[symbol] === void 0) current[symbol] = {}
+        current = current[symbol]
+      })
+      current.$reduce = reduce
+      current.$count = ruleBody.length
+    })
+  }
+  for (const key of Object.keys(state)) {
+    if (key.startsWith('$')) continue
+    const id = JSON.stringify(state[key])
+    if (visited.has(id)) {
+      state[key] = visited.get(id)
+    } else {
+      getClosureState(state[key])
+    }
+  }
+  return state
+}
+
+const initialState = {
+  'Additive': {
+    '$reduce': 'Expression',
+    '$count': 1
+  }
+}
+
+// 不带括号的四则运算
+function expressionParseWithoutBracket(list) {
+  const state = initialState
+  getClosureState(state)
+  const stack = []
+  const stateStack = [ initialState ]
+  const n = list.length
+
+  // 同步操作 stack 和 state
+  const shfit = symbol => {
+    while (state[symbol.type] === void 0) reduce()
+    state = state[symbol.type]
+    stack.push(symbol)
+  }
+
+  // 根据 state 操作 stack
+  const reduce = () => {
+    const symbol = {
+      type: state.$reduce,
+      children: []
+    }
+    for (let i = 0; i < state.$count; i++) {
+      symbol.children.unshift(stack.pop())
+    }
+    shfit(symbol) // 移入 shift （放回去）
+  }
+
+  for (let i = 0; i < n; i++) {
+    const symbol = list[i]
+    let nextState = state[symbol.type]
+    if (nextState) { // state 存在，shift 移入栈
+      stack.push(symbol)
+    } else { // reduce 归约
+      reduce()
+    }
+  }
+  return stack
 }
 
 const generateState = symbols => {
@@ -112,3 +200,6 @@ const eof = symbol => {
 
 const success = () => success
 
+exports.getClosure = getClosure
+exports.getClosureState = getClosureState
+exports.expressionParseWithoutBracket = expressionParseWithoutBracket

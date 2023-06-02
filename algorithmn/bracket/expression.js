@@ -1,6 +1,6 @@
 let Reg = /([1-9][0-9]{0,}|0\.{0-9}{0,})|(\+)|(\-)|(\*)|(\/)|([(])|([)])/g
 
-exports.parse = function parse(str) {
+function parseStr(str) {
   let r
   const list = []
   while (r = Reg.exec(str)) {
@@ -12,8 +12,11 @@ exports.parse = function parse(str) {
   list.push({
     type: 'EOF'
   })
-  const stack = expressionParse(list)
-  return stack
+  return list
+}
+
+function parse(str) {
+  return expressionParse(parseStr(str))
 }
 
 // 流式处理，处理一个就往外输出
@@ -73,7 +76,7 @@ non-terminial symbol := 非终结符 "("
 */
 const map = new Map([
   ['Expression', [['Additive']]],
-  ['Additive', [['Additive'], ['Multiplicative'], ['Additive', '+', 'Multiplicative'], ['Additive', '-', 'Multiplicative']]],
+  ['Additive', [['Multiplicative'], ['Additive', '+', 'Multiplicative'], ['Additive', '-', 'Multiplicative']]],
   ['Multiplicative', [['Primary'], ['Multiplicative', '*', 'Primary'], ['Multiplicative', '/', 'Primary']]],
   ['Primary', [['Number'], ['(', 'Expression', ')']]]
 ])
@@ -128,47 +131,53 @@ const getClosureState = function(state) {
 }
 
 const initialState = {
-  'Additive': {
+  Expression: {
+    EOF: {
+      $end: true
+    }
+  },
+  Additive: {
     '$reduce': 'Expression',
     '$count': 1
   }
 }
 
 // 不带括号的四则运算
-function expressionParseWithoutBracket(list) {
-  const state = initialState
-  getClosureState(state)
+function parseExpression(list) {
+  getClosureState(initialState)
   const stack = []
   const stateStack = [ initialState ]
   const n = list.length
 
   // 同步操作 stack 和 state
-  const shfit = symbol => {
-    while (state[symbol.type] === void 0) reduce()
-    state = state[symbol.type]
+  const shift = symbol => {
+    while (
+      stateStack[stateStack.length - 1][symbol.type] === void 0 &&
+      stateStack[stateStack.length - 1].$reduce
+    ) {
+      reduce()
+    }
     stack.push(symbol)
+    stateStack.push(stateStack[stateStack.length - 1][symbol.type])
   }
 
   // 根据 state 操作 stack
   const reduce = () => {
+    const currentState = stateStack[stateStack.length - 1]
     const symbol = {
-      type: state.$reduce,
+      type: currentState.$reduce,
       children: []
     }
-    for (let i = 0; i < state.$count; i++) {
+    for (let i = 0; i < currentState.$count; i++) {
       symbol.children.unshift(stack.pop())
+      stateStack.pop()
     }
-    shfit(symbol) // 移入 shift （放回去）
+    shift(symbol) // 移入 shift （放回去）
   }
 
   for (let i = 0; i < n; i++) {
     const symbol = list[i]
-    let nextState = state[symbol.type]
-    if (nextState) { // state 存在，shift 移入栈
-      stack.push(symbol)
-    } else { // reduce 归约
-      reduce()
-    }
+    shift(symbol)
   }
   return stack
 }
@@ -200,6 +209,8 @@ const eof = symbol => {
 
 const success = () => success
 
+exports.parse = parse
+exports.parseStr = parseStr
 exports.getClosure = getClosure
 exports.getClosureState = getClosureState
-exports.expressionParseWithoutBracket = expressionParseWithoutBracket
+exports.parseExpression = parseExpression

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    const map = new Map([
+      ['Expression', [['Additive']]],
+      ['Additive', [['Additive'], ['Multiplicative'], ['Additive', '+', 'Multiplicative'], ['Additive', '-', 'Multiplicative']]],
+      ['Multiplicative', [['Primary'], ['Multiplicative', '*', 'Primary'], ['Multiplicative', '/', 'Primary']]],
+      ['Primary', [['Number'], ['(', 'Expression', ')']]]
+    ])
+
+    const getClosure = symbol => { // 表示当前的符号
+      const rules = []
+      const pool = [symbol]
+      const visited = new Set()
+      while (pool.length !== 0) {
+        const current = pool.shift()
+        if (map.has(current) === false) continue
+        if (visited.has(current) === true) continue
+        const ruleBodys = map.get(current)
+        ruleBodys.forEach(ruleBody => {
+          if (visited.has(ruleBody[0]) === true) return
+          rules.push({ ruleBody, $reduce: current })
+          pool.push(ruleBody[0])
+        })
+        visited.add(current)
+      }
+      return rules
+    }
+
+    /** 用 states 存储 */
+    const visited = new Map()
+    const getClosureState = function (state) {
+      visited.set(JSON.stringify(state), state)
+      for (const key of Object.keys(state)) {
+        if (key.startsWith('$')) continue
+        const closure = getClosure(key)
+        closure.forEach(item => {
+          const { ruleBody, $reduce: reduce } = item
+          current = state
+          ruleBody.forEach(symbol => {
+            if (current[symbol] === void 0) current[symbol] = {}
+            current = current[symbol]
+          })
+          current.$reduce = reduce
+          current.$count = ruleBody.length
+        })
+      }
+      for (const key of Object.keys(state)) {
+        if (key.startsWith('$')) continue
+        const id = JSON.stringify(state[key])
+        if (visited.has(id)) {
+          state[key] = visited.get(id)
+        } else {
+          getClosureState(state[key])
+        }
+      }
+      return state
+    }
+
+    const initialState = {
+      'Additive': {
+        '$reduce': 'Expression',
+        '$count': 1
+      }
+    }
+    console.log(getClosureState(initialState))
+  </script>
+</body>
+
+</html>

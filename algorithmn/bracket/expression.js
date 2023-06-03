@@ -67,10 +67,6 @@ function expressionParse(list) {
 terminal symbol := 终结符 <Number>
 non-terminial symbol := 非终结符 "("
 
-对于数学表达式，开头的只能是 Number 或 "("  
-对于 JavaScript 表达式，开头可以是 ECMA 206 中 附录 A.2
-
-
 1. 设计数据结构，存储规则
 
 */

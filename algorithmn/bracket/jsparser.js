@@ -1,3 +1,5 @@
+const { Reference } = require('./lib/Reference')
+const { Enviroment } = require('./lib/Environment')
 /*
 正则
 <NumberLiteral> ::= /^(-{0,1}{1-9}{1}{0-9}{0,}|0\.{0-9}{0,})$/
@@ -263,9 +265,16 @@ function parseExpression(list, map, initialState) {
   }
   return stack
 }
-
+const globalEnv = new Enviroment()
 const evaluator = {
+  envStack: [globalEnv],
+  get currentEnv(){
+    return this.envStack[this.envStack.length - 1]
+  },
   Program(node) {
+    return evaluate(node.children[0])
+  },
+  StatementListItem(node) {
     return evaluate(node.children[0])
   },
   StatementList(node) {
@@ -281,21 +290,76 @@ const evaluator = {
   ExpressionStatement(node) {
     return evaluate(node.children[0])
   },
+  IfStatement(node) {
+    const flag = evaluate(node.children[2])
+    if (node.children.length === 5) {
+      if (flag) {
+        evaluate(node.children[4])
+      }
+    } else {
+      if (flag) {
+        evaluate(node.children[4])
+      } else {
+        evaluate(node.children[6])
+      }
+    }
+  },
+  ForStatement(node) {
+    if (node.children.length === 9) {
+      const initialExpression = node.children[2]
+      const conditionalExpression = node.children[4]
+      const finalExpression = node.children[6]
+      const cycleBody = node.children[8]
+      evaluate(initialExpression)
+      while (evaluate(conditionalExpression)) {
+        evaluate(cycleBody)
+        evaluate(finalExpression)
+      }
+    }
+  },
+  Declaration(node) {
+    this.currentEnv.set(node.children[1].value, void 0)
+    const ref = evaluate(node.children[1])
+    ref.set(evaluate(node.children[3]))
+  },
+  BlockStatement(node) {
+    if (node.children.length === 3) {
+      this.envStack.push(new Enviroment(this.currentEnv))
+      const res = evaluate(node.children[1])
+      this.envStack.pop()
+      return res
+    }
+  },
   Expression(node) {
     return evaluate(node.children[0])
+  },
+  NewExpression(node) {
+    if (node.children.length === 1) {
+      return evaluate(node.children[0])
+    }
   },
   AssignmentExpression(node) {
     if (node.children.length === 1) {
       return evaluate(node.children[0])
+    } else {
+      const ref = evaluate(node.children[0])
+      const result = evaluate(node.children[2])
+      ref.set(result)
     }
   },
   AdditiveExpression(node) {
     if (node.children.length === 1) {
       return evaluate(node.children[0])
     } else {
-      const left = evaluate(node.children[0])
-      const right = evaluate(node.children[2])
-      if (node.children[1] === '+') {
+      let left = evaluate(node.children[0])
+      if (left instanceof Reference) {
+        left = left.get()
+      }
+      let right = evaluate(node.children[2])
+      if (right instanceof Reference) {
+        right = right.get()
+      }
+      if (node.children[1].type === '+') {
         return left + right
       } else {
         return left - right
@@ -308,9 +372,9 @@ const evaluator = {
     } else {
       const left = evaluate(node.children[0])
       const right = evaluate(node.children[2])
-      if (node.children[1] === '+') {
+      if (node.children[1].type === '+') {
         return left * right
-      } else if (node.children[1] === '/') {
+      } else if (node.children[1].type === '/') {
         return left / right
       } else {
         return left % right
@@ -322,30 +386,37 @@ const evaluator = {
   },
   MemberExpression(node) {
     if (node.children.length === 1) {
+      // 只有一个参数，返回值，不能被赋值
       return evaluate(node.children[0])
     } else if (node.children.length === 3) {
-
+      return new Reference(evalute(node.children[0]), node.children[2])
     } else {
-
+      return new Reference(evalute(node.children[0]), evalute(node.children[2]))
     }
   },
-  PrimaryExpression(node) {
+  Primary(node) {
     if (node.children.length === 1) {
       return evaluate(node.children[0])
     } else {
       return evaluate(node.children[1])
     }
   },
+  Identifier(node) {
+    return new Reference(this.currentEnv, node.value)
+  },
   Literal(node) {
     return evaluate(node.children[0])
   },
   NumberLiteral(node) {
-    return eval(node.value)
+    return node.value * 1
+  },
+  BooleanLiteral(node) {
+    return node.value === 'true'
   }
 }
 
 const evaluate = ast => {
-  return evaluator[ast.type][ast]
+  return evaluator[ast.type](ast)
 }
 
 exports.regHelp = regHelp
@@ -355,3 +426,4 @@ exports.getClosure = getClosure
 exports.getClosureState = getClosureState
 exports.parseExpression = parseExpression
 exports.evaluate = evaluate
+exports.globalEnv = globalEnv

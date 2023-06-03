@@ -1,0 +1,248 @@
+  console.log
+    1 1
+
+      at Object.log [as AdditiveExpression] (jsparser.js:363:17)
+
+  console.log
+    [
+      {
+        "type": "Program",
+        "children": [
+          {
+            "type": "StatementList",
+            "children": [
+              {
+                "type": "StatementList",
+                "children": [
+                  {
+                    "type": "StatementListItem",
+                    "children": [
+                      {
+                        "type": "Statement",
+                        "children": [
+                          {
+                            "type": "Declaration",
+                            "children": [
+                              {
+                                "type": "let",
+                                "value": "let"
+                              },
+                              {
+                                "type": "Identifier",
+                                "value": "b"
+                              },
+                              {
+                                "type": "=",
+                                "value": "="
+                              },
+                              {
+                                "type": "Expression",
+                                "children": [
+                                  {
+                                    "type": "AssignmentExpression",
+                                    "children": [
+                                      {
+                                        "type": "AdditiveExpression",
+                                        "children": [
+                                          {
+                                            "type": "MultiplicativeExpression",
+                                            "children": [
+                                              {
+                                                "type": "LeftHandSideExpression",
+                                                "children": [
+                                                  {
+                                                    "type": "NewExpression",
+                                                    "children": [
+                                                      {
+                                                        "type": "MemberExpression",
+                                                        "children": [
+                                                          {
+                                                            "type": "Primary",
+                                                            "children": [
+                                                              {
+                                                                "type": "Literal",
+                                                                "children": [
+                                                                  {
+                                                                    "type": "NumberLiteral",
+                                                                    "value": "1"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "type": ";",
+                                "value": ";"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "StatementListItem",
+                "children": [
+                  {
+                    "type": "Statement",
+                    "children": [
+                      {
+                        "type": "ExpressionStatement",
+                        "children": [
+                          {
+                            "type": "Expression",
+                            "children": [
+                              {
+                                "type": "AssignmentExpression",
+                                "children": [
+                                  {
+                                    "type": "LeftHandSideExpression",
+                                    "children": [
+                                      {
+                                        "type": "NewExpression",
+                                        "children": [
+                                          {
+                                            "type": "MemberExpression",
+                                            "children": [
+                                              {
+                                                "type": "Primary",
+                                                "children": [
+                                                  {
+                                                    "type": "Identifier",
+                                                    "value": "b"
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "=",
+                                    "value": "="
+                                  },
+                                  {
+                                    "type": "AssignmentExpression",
+                                    "children": [
+                                      {
+                                        "type": "AdditiveExpression",
+                                        "children": [
+                                          {
+                                            "type": "AdditiveExpression",
+                                            "children": [
+                                              {
+                                                "type": "MultiplicativeExpression",
+                                                "children": [
+                                                  {
+                                                    "type": "LeftHandSideExpression",
+                                                    "children": [
+                                                      {
+                                                        "type": "NewExpression",
+                                                        "children": [
+                                                          {
+                                                            "type": "MemberExpression",
+                                                            "children": [
+                                                              {
+                                                                "type": "Primary",
+                                                                "children": [
+                                                                  {
+                                                                    "type": "Identifier",
+                                                                    "value": "b"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "type": "+",
+                                            "value": "+"
+                                          },
+                                          {
+                                            "type": "MultiplicativeExpression",
+                                            "children": [
+                                              {
+                                                "type": "LeftHandSideExpression",
+                                                "children": [
+                                                  {
+                                                    "type": "NewExpression",
+                                                    "children": [
+                                                      {
+                                                        "type": "MemberExpression",
+                                                        "children": [
+                                                          {
+                                                            "type": "Primary",
+                                                            "children": [
+                                                              {
+                                                                "type": "Literal",
+                                                                "children": [
+                                                                  {
+                                                                    "type": "NumberLiteral",
+                                                                    "value": "1"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": ";",
+                            "value": ";"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "EOF"
+      }
+    ]
+
+      at Object.log (test/jsparser.test.js:551:15)
+

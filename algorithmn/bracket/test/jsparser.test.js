@@ -1,7 +1,6 @@
-const { parse, parseStr,  parseExpression, evaluate } = require('../jsparser')
+const { parse, parseStr,  parseExpression, evaluate, globalEnv } = require('../jsparser')
 
 describe('Test LR Parser', () => {
-  
   test('let a = null + 1 + "str"', () => {
     expect(JSON.stringify(parse('let a = null + 1 + "str"'))).toEqual(JSON.stringify([{"type": "let", "value": "let"}, {"type": "Identifier", "value": "a"}, {"type": "=", "value": "="}, {"type": "NulLiteral", "value": "null"}, {"type": "+", "value": "+"}, {"type": "NumberLiteral", "value": "1"}, {"type": "+", "value": "+"}, {"type": "StringLiteral", "value": "\"str\""}, {"type": "EOF"}]))
   })
@@ -315,53 +314,255 @@ describe('ExpressionParse', () => {
     // console.log(JSON.stringify(expression))
     expect(JSON.stringify(expression)).toBe(JSON.stringify([{"type":"StatementList","children":[{"type":"StatementListItem","children":[{"type":"Statement","children":[{"type":"ExpressionStatement","children":[{"type":"Expression","children":[{"type":"AssignmentExpression","children":[{"type":"AdditiveExpression","children":[{"type":"MultiplicativeExpression","children":[{"type":"LeftHandSideExpression","children":[{"type":"CallExpression","children":[{"type":"new","value":"new"},{"type":"MemberExpression","children":[{"type":"Primary","children":[{"type":"Identifier","value":"Class1"}]}]},{"type":"(","value":"("},{"type":")","value":")"}]}]}]}]}]}]},{"type":";","value":";"}]}]}]}]},{"type":"EOF"}]))
   })
-  describe('Test evaluator', () => {
-    const map = new Map([
-      ['Literal', [['NumberLiteral'], ['StringLiteral'], ['BooleanLiteral'], ['NullLiteral']]],
-      ['Primary', [['(', 'Expression', ')'], ['Literal'], ['Identifier']]],
-      ['MemberExpression', [['Primary'], ['MemberExpression', '.', 'Identifier'], ['MemberExpression', '[', 'Expression', ']']]],
-      ['NewExpression', [['MemberExpression'], ['new', 'NewExpression']]],
-      ['CallExpression', [
-        ['new', 'MemberExpression', '(', ')'],
-        ['MmberEXpression', '(', ')'],
-        ['CallExpression', '.', 'Identifier'],
-        ['CallExpression', '[', 'Expression', ']'],
-        ['CallExpression', '(', 'Arguments', ')']
-      ]],
-      ['LeftHandSideExpression', [['MemberExpression'], ['CallExpression'], ['NewExpression']]],
-      ['MultiplicativeExpression', [['LeftHandSideExpression'], ['MultiplicativeExpression', '*', 'LeftHandSideExpression'], ['MultiplicativeExpression', '/', 'LeftHandSideExpression'], ['MultiplicativeExpression', '%', 'LeftHandSideExpression']]],
-      ['AdditiveExpression', [['MultiplicativeExpression'], ['AdditiveExpression', '+', 'MultiplicativeExpression'], ['AdditiveExpression', '/', 'MultiplicativeExpression']]],
-      ['AssignmentExpression', [['AdditiveExpression'], ['LeftHandSideExpression', '=', 'AssignmentExpression']]],
-      ['Expression', [['AssignmentExpression']]],
-      ['ExpressionStatement', [['Expression', ';']]],
-      ['Declaration', [
-        ['var', 'Identifier', '=', 'Expression', ';'], 
-        ['let', 'Identifier', '=', 'Expression', ';'], 
-        ['const', 'Identifier', '=', 'Expression', ';']
-      ]],
-      /** Added: Start */
-      ['Parameters', [['Identifier'], ['Parameters', ',', 'Identifier']]],
-      ['FunctionDeclaration', [
-        ['function', 'Identifier', '(', ')', '{', 'StatementList', '}'],
-        ['function', 'Identifier', '(', 'Parameters', ')', '{', 'StatementList', '}']
-      ]],
-      /** Added: End */
-      ['Statement', [['ExpressionStatement'], ['IfStatement'], ['ForStatement'], ['Declaration']]],
-      ['StatementListItem', [['Statement'], ['Declaration']]],
-      ['StatementList', [['StatementListItem'], ['StatementList', 'StatementListItem']]],
-      /** Added */
-      ['Program', [['StatementList']]]
-    ])
-    const initialState = {
-      Program: {
-        EOF: {
-          $end: true
-        }
+})
+
+describe('Test evaluator', () => {
+  const map = new Map([
+    ['Literal', [['NumberLiteral'], ['StringLiteral'], ['BooleanLiteral'], ['NullLiteral']]],
+    ['Primary', [['(', 'Expression', ')'], ['Literal'], ['Identifier']]],
+    ['MemberExpression', [['Primary'], ['MemberExpression', '.', 'Identifier'], ['MemberExpression', '[', 'Expression', ']']]],
+    ['NewExpression', [['MemberExpression'], ['new', 'NewExpression']]],
+    ['CallExpression', [
+      ['new', 'MemberExpression', '(', ')'],
+      ['MmberEXpression', '(', ')'],
+      ['CallExpression', '.', 'Identifier'],
+      ['CallExpression', '[', 'Expression', ']'],
+      ['CallExpression', '(', 'Arguments', ')']
+    ]],
+    ['LeftHandSideExpression', [['MemberExpression'], ['CallExpression'], ['NewExpression']]],
+    ['MultiplicativeExpression', [['LeftHandSideExpression'], ['MultiplicativeExpression', '*', 'LeftHandSideExpression'], ['MultiplicativeExpression', '/', 'LeftHandSideExpression'], ['MultiplicativeExpression', '%', 'LeftHandSideExpression']]],
+    ['AdditiveExpression', [['MultiplicativeExpression'], ['AdditiveExpression', '+', 'MultiplicativeExpression'], ['AdditiveExpression', '/', 'MultiplicativeExpression']]],
+    ['AssignmentExpression', [['AdditiveExpression'], ['LeftHandSideExpression', '=', 'AssignmentExpression']]],
+    ['Expression', [['AssignmentExpression']]],
+    ['ExpressionStatement', [['Expression', ';']]],
+    ['Declaration', [
+      ['var', 'Identifier', '=', 'Expression', ';'], 
+      ['let', 'Identifier', '=', 'Expression', ';'], 
+      ['const', 'Identifier', '=', 'Expression', ';']
+    ]],
+    /** Added: Start */
+    ['Parameters', [['Identifier'], ['Parameters', ',', 'Identifier']]],
+    ['FunctionDeclaration', [
+      ['function', 'Identifier', '(', ')', '{', 'StatementList', '}'],
+      ['function', 'Identifier', '(', 'Parameters', ')', '{', 'StatementList', '}']
+    ]],
+    /** Added: End */
+    ['Statement', [['ExpressionStatement'], ['IfStatement'], ['ForStatement'], ['Declaration']]],
+    ['StatementListItem', [['Statement'], ['Declaration']]],
+    ['StatementList', [['StatementListItem'], ['StatementList', 'StatementListItem']]],
+    /** Added */
+    ['Program', [['StatementList']]],
+  ])
+  const initialState = {
+    Program: {
+      EOF: {
+        $end: true
       }
     }
-    it('1 + 1', () => {
-      const expression = parseExpression(parseStr("1 + 1"), map, initialState)
-      console.log(evaluate(expression[0]))
-    })
+  }
+  it('1 + 1', () => {
+    const expression = parseExpression(parseStr("1 + 1"), map, initialState)
+    expect(evaluate(expression[0])).toBe(2)
+  })
+})
+describe('Test IfStatement', () => {
+  const map = new Map([
+    ['Literal', [['NumberLiteral'], ['StringLiteral'], ['BooleanLiteral'], ['NullLiteral']]],
+    ['Primary', [['(', 'Expression', ')'], ['Literal'], ['Identifier']]],
+    ['MemberExpression', [['Primary'], ['MemberExpression', '.', 'Identifier'], ['MemberExpression', '[', 'Expression', ']']]],
+    ['NewExpression', [['MemberExpression'], ['new', 'NewExpression']]],
+    ['CallExpression', [
+      ['new', 'MemberExpression', '(', ')'],
+      ['MmberEXpression', '(', ')'],
+      ['CallExpression', '.', 'Identifier'],
+      ['CallExpression', '[', 'Expression', ']'],
+      ['CallExpression', '(', 'Arguments', ')']
+    ]],
+    ['LeftHandSideExpression', [['MemberExpression'], ['CallExpression'], ['NewExpression']]],
+    ['MultiplicativeExpression', [['LeftHandSideExpression'], ['MultiplicativeExpression', '*', 'LeftHandSideExpression'], ['MultiplicativeExpression', '/', 'LeftHandSideExpression'], ['MultiplicativeExpression', '%', 'LeftHandSideExpression']]],
+    ['AdditiveExpression', [['MultiplicativeExpression'], ['AdditiveExpression', '+', 'MultiplicativeExpression'], ['AdditiveExpression', '/', 'MultiplicativeExpression']]],
+    ['AssignmentExpression', [['AdditiveExpression'], ['LeftHandSideExpression', '=', 'AssignmentExpression']]],
+    ['Expression', [['AssignmentExpression'], ['Expression', ',', 'AssignmentExpression']]],
+    ['ExpressionStatement', [['Expression', ';']]],
+    ['Declaration', [
+      ['var', 'Identifier', '=', 'Expression', ';'], 
+      ['let', 'Identifier', '=', 'Expression', ';'], 
+      ['const', 'Identifier', '=', 'Expression', ';']
+    ]],
+    ['Parameters', [['Identifier'], ['Parameters', ',', 'Identifier']]],
+    ['FunctionDeclaration', [
+      ['function', 'Identifier', '(', ')', '{', 'StatementList', '}'],
+      ['function', 'Identifier', '(', 'Parameters', ')', '{', 'StatementList', '}']
+    ]],
+    /** Added: Start */
+    ['IfStatement', [
+      ['if', '(', 'Expression', ')', 'Statement'], 
+      ['if', '(', 'Expression', ')', 'else', 'Statement']
+    ]],
+    ['BlockStatement', [
+      ['{', '}'],
+      ['{', 'StatementList', '}'],
+    ]],
+    /** Added: End */
+    ['Statement', [['ExpressionStatement'], ['IfStatement'], ['ForStatement'], ['Declaration'], ['BlockStatement']]],
+    ['StatementListItem', [['Statement'], ['Declaration']]],
+    ['StatementList', [['StatementListItem'], ['StatementList', 'StatementListItem']]],
+    /** Added */
+    ['Program', [['StatementList']]],
+  ])
+  const initialState = {
+    Program: {
+      EOF: {
+        $end: true
+      }
+    }
+  }
+  it('IfStatement', () => {
+    const expression = parseExpression(parseStr("if (ture) {const a = 1;}"), map, initialState)
+    // console.log(evaluate(expression[0]))
+  })
+})
+
+describe('Test ForStatement', () => {
+  const map = new Map([
+    ['Literal', [['NumberLiteral'], ['StringLiteral'], ['BooleanLiteral'], ['NullLiteral']]],
+    ['Primary', [['(', 'Expression', ')'], ['Literal'], ['Identifier']]],
+    ['MemberExpression', [['Primary'], ['MemberExpression', '.', 'Identifier'], ['MemberExpression', '[', 'Expression', ']']]],
+    ['NewExpression', [['MemberExpression'], ['new', 'NewExpression']]],
+    ['CallExpression', [
+      ['new', 'MemberExpression', '(', ')'],
+      ['MmberEXpression', '(', ')'],
+      ['CallExpression', '.', 'Identifier'],
+      ['CallExpression', '[', 'Expression', ']'],
+      ['CallExpression', '(', 'Arguments', ')']
+    ]],
+    ['LeftHandSideExpression', [['MemberExpression'], ['CallExpression'], ['NewExpression']]],
+    ['MultiplicativeExpression', [['LeftHandSideExpression'], ['MultiplicativeExpression', '*', 'LeftHandSideExpression'], ['MultiplicativeExpression', '/', 'LeftHandSideExpression'], ['MultiplicativeExpression', '%', 'LeftHandSideExpression']]],
+    ['AdditiveExpression', [['MultiplicativeExpression'], ['AdditiveExpression', '+', 'MultiplicativeExpression'], ['AdditiveExpression', '/', 'MultiplicativeExpression']]],
+    ['AssignmentExpression', [['AdditiveExpression'], ['LeftHandSideExpression', '=', 'AssignmentExpression']]],
+    ['Expression', [['AssignmentExpression'], ['Expression', ',', 'AssignmentExpression']]],
+    ['ExpressionStatement', [['Expression', ';']]],
+    ['Declaration', [
+      ['var', 'Identifier', '=', 'Expression', ';'], 
+      ['let', 'Identifier', '=', 'Expression', ';'], 
+      ['const', 'Identifier', '=', 'Expression', ';']
+    ]],
+    ['Parameters', [['Identifier'], ['Parameters', ',', 'Identifier']]],
+    ['FunctionDeclaration', [
+      ['function', 'Identifier', '(', ')', '{', 'StatementList', '}'],
+      ['function', 'Identifier', '(', 'Parameters', ')', '{', 'StatementList', '}']
+    ]],
+    /** Added: Start */
+    ['IfStatement', [
+      ['if', '(', 'Expression', ')', 'Statement'], 
+      ['if', '(', 'Expression', ')', 'else', 'Statement']
+    ]],
+    ['BlockStatement', [
+      ['{', '}'],
+      ['{', 'StatementList', '}'],
+    ]],
+    ['ForStatement', [
+      ['for', '(', 'Expression', ';', 'Expression', ';', 'Expression', ')', 'Statement']
+    ]],
+    /** Added: End */
+    ['Statement', [['ExpressionStatement'], ['IfStatement'], ['ForStatement'], ['Declaration'], ['BlockStatement']]],
+    ['StatementListItem', [['Statement'], ['Declaration']]],
+    ['StatementList', [['StatementListItem'], ['StatementList', 'StatementListItem']]],
+    /** Added */
+    ['Program', [['StatementList']]],
+  ])
+  const initialState = {
+    Program: {
+      EOF: {
+        $end: true
+      }
+    }
+  }
+
+  it('ForStatement', () => {
+    // const expression = parseExpression(parseStr("for(i = 1; i < n; i++) {}"), map, initialState)
+    // evaluate(expression)
+  })
+})
+
+describe('Scope', () => {
+  const map = new Map([
+    ['Literal', [['NumberLiteral'], ['StringLiteral'], ['BooleanLiteral'], ['NullLiteral']]],
+    ['Primary', [['(', 'Expression', ')'], ['Literal'], ['Identifier']]],
+    ['MemberExpression', [['Primary'], ['MemberExpression', '.', 'Identifier'], ['MemberExpression', '[', 'Expression', ']']]],
+    ['NewExpression', [['MemberExpression'], ['new', 'NewExpression']]],
+    ['CallExpression', [
+      ['new', 'MemberExpression', '(', ')'],
+      ['MmberEXpression', '(', ')'],
+      ['CallExpression', '.', 'Identifier'],
+      ['CallExpression', '[', 'Expression', ']'],
+      ['CallExpression', '(', 'Arguments', ')']
+    ]],
+    ['LeftHandSideExpression', [['MemberExpression'], ['CallExpression'], ['NewExpression']]],
+    ['MultiplicativeExpression', [['LeftHandSideExpression'], ['MultiplicativeExpression', '*', 'LeftHandSideExpression'], ['MultiplicativeExpression', '/', 'LeftHandSideExpression'], ['MultiplicativeExpression', '%', 'LeftHandSideExpression']]],
+    ['AdditiveExpression', [['MultiplicativeExpression'], ['AdditiveExpression', '+', 'MultiplicativeExpression'], ['AdditiveExpression', '/', 'MultiplicativeExpression']]],
+    ['AssignmentExpression', [['AdditiveExpression'], ['LeftHandSideExpression', '=', 'AssignmentExpression']]],
+    ['Expression', [['AssignmentExpression'], ['Expression', ',', 'AssignmentExpression']]],
+    ['ExpressionStatement', [['Expression', ';']]],
+    ['Declaration', [
+      ['var', 'Identifier', '=', 'Expression', ';'], 
+      ['let', 'Identifier', '=', 'Expression', ';'], 
+      ['const', 'Identifier', '=', 'Expression', ';']
+    ]],
+    ['Parameters', [['Identifier'], ['Parameters', ',', 'Identifier']]],
+    ['FunctionDeclaration', [
+      ['function', 'Identifier', '(', ')', '{', 'StatementList', '}'],
+      ['function', 'Identifier', '(', 'Parameters', ')', '{', 'StatementList', '}']
+    ]],
+    /** Added: Start */
+    ['IfStatement', [
+      ['if', '(', 'Expression', ')', 'Statement'], 
+      ['if', '(', 'Expression', ')', 'else', 'Statement']
+    ]],
+    ['BlockStatement', [
+      ['{', '}'],
+      ['{', 'StatementList', '}'],
+    ]],
+    ['ForStatement', [
+      ['for', '(', 'Expression', ';', 'Expression', ';', 'Expression', ')', 'Statement']
+    ]],
+    /** Added: End */
+    ['Statement', [['ExpressionStatement'], ['IfStatement'], ['ForStatement'], ['Declaration'], ['BlockStatement']]],
+    ['StatementListItem', [['Statement'], ['Declaration']]],
+    ['StatementList', [['StatementListItem'], ['StatementList', 'StatementListItem']]],
+    /** Added */
+    ['Program', [['StatementList']]],
+  ])
+  const getInitialState = () => ({
+    Program: {
+      EOF: {
+        $end: true
+      }
+    }
+  })
+  it('DelcarationStatement', () => {
+    const expression = parseExpression(parseStr("let a = 1;"), map, getInitialState())
+    evaluate(expression[0])
+    // console.log(JSON.stringify(expression, null, 2) )
+    expect(globalEnv.vars.get('a')).toBe(1)
+  })
+
+  it('AdditiveStatement', () => {
+    const expression = parseExpression(parseStr("let b = 1;b = b + 1"), map, getInitialState())
+    evaluate(expression[0])
+    // console.log(JSON.stringify(expression, null, 2))
+    expect(globalEnv.vars.get('b')).toBe(2)
+  })
+  it('Nested Blocks', () => {
+    const expression = parseExpression(parseStr(`{
+      let a= 1
+      {
+        let b = a + 1
+        b + 1
+      }
+    }`), map, getInitialState())
+    const res = evaluate(expression[0])
+    // console.log(JSON.stringify(expression, null, 2))
+    expect(res).toBe(3)
   })
 })

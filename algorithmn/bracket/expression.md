@@ -21,3 +21,6 @@ auto semi insertion
 3. EOF
 
 当前 symbol 不被当前状态接受，当 symbol 前有回车，插入 ;
+
+# Number
+IEEE 754

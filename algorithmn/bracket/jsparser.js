@@ -207,6 +207,7 @@ const getClosureState = function(state, map) {
 
 // 不带括号的四则运算
 function parseExpression(list, map, initialState) {
+  visited.clear()
   getClosureState(initialState, map)
   const stack = []
   const stateStack = [ initialState ]
@@ -263,9 +264,94 @@ function parseExpression(list, map, initialState) {
   return stack
 }
 
+const evaluator = {
+  Program(node) {
+    return evaluate(node.children[0])
+  },
+  StatementList(node) {
+    if (node.children.length === 1) {
+      return evaluate(node.children[0])
+    }
+    evaluate(node.children[0])
+    return evaluate(node.children[1])
+  },
+  Statement(node) {
+    return evaluate(node.children[0])
+  },
+  ExpressionStatement(node) {
+    return evaluate(node.children[0])
+  },
+  Expression(node) {
+    return evaluate(node.children[0])
+  },
+  AssignmentExpression(node) {
+    if (node.children.length === 1) {
+      return evaluate(node.children[0])
+    }
+  },
+  AdditiveExpression(node) {
+    if (node.children.length === 1) {
+      return evaluate(node.children[0])
+    } else {
+      const left = evaluate(node.children[0])
+      const right = evaluate(node.children[2])
+      if (node.children[1] === '+') {
+        return left + right
+      } else {
+        return left - right
+      }
+    }
+  },
+  MultiplicativeExpression(node) {
+    if (node.children.length === 1) {
+      return evaluate(node.children[0])
+    } else {
+      const left = evaluate(node.children[0])
+      const right = evaluate(node.children[2])
+      if (node.children[1] === '+') {
+        return left * right
+      } else if (node.children[1] === '/') {
+        return left / right
+      } else {
+        return left % right
+      }
+    }
+  },
+  LeftHandSideExpression(node) {
+    return evaluate(node.children[0])
+  },
+  MemberExpression(node) {
+    if (node.children.length === 1) {
+      return evaluate(node.children[0])
+    } else if (node.children.length === 3) {
+
+    } else {
+
+    }
+  },
+  PrimaryExpression(node) {
+    if (node.children.length === 1) {
+      return evaluate(node.children[0])
+    } else {
+      return evaluate(node.children[1])
+    }
+  },
+  Literal(node) {
+    return evaluate(node.children[0])
+  },
+  NumberLiteral(node) {
+    return eval(node.value)
+  }
+}
+
+const evaluate = ast => {
+  return evaluator[ast.type][ast]
+}
+
 exports.regHelp = regHelp
 exports.parse = parse
 exports.parseStr = parseStr
 exports.getClosure = getClosure
 exports.getClosureState = getClosureState
 exports.parseExpression = parseExpression
+exports.evaluate = evaluate

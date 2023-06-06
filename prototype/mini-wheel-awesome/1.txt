@@ -1,0 +1,96 @@
+  console.log
+    ast Node {
+      type: 'Program',
+      start: 0,
+      end: 21,
+      loc: SourceLocation {
+        start: Position { line: 1, column: 0 },
+        end: Position { line: 3, column: 8 }
+      },
+      range: [ 0, 21 ],
+      body: [
+        Node {
+          type: 'VariableDeclaration',
+          start: 1,
+          end: 12,
+          loc: [SourceLocation],
+          range: [Array],
+          declarations: [Array],
+          kind: 'const'
+        }
+      ],
+      sourceType: 'module'
+    }
+
+      at getVars (03-wheel/build_tools/rollup/prototype/begin/ast.js:9:11)
+
+  console.log
+    ast Node {
+      type: 'Program',
+      start: 0,
+      end: 33,
+      loc: SourceLocation {
+        start: Position { line: 1, column: 0 },
+        end: Position { line: 4, column: 8 }
+      },
+      range: [ 0, 33 ],
+      body: [
+        Node {
+          type: 'VariableDeclaration',
+          start: 1,
+          end: 12,
+          loc: [SourceLocation],
+          range: [Array],
+          declarations: [Array],
+          kind: 'const'
+        },
+        Node {
+          type: 'VariableDeclaration',
+          start: 13,
+          end: 24,
+          loc: [SourceLocation],
+          range: [Array],
+          declarations: [Array],
+          kind: 'const'
+        }
+      ],
+      sourceType: 'module'
+    }
+
+      at getVars (03-wheel/build_tools/rollup/prototype/begin/ast.js:9:11)
+
+  console.log
+    ast Node {
+      type: 'Program',
+      start: 0,
+      end: 29,
+      loc: SourceLocation {
+        start: Position { line: 1, column: 0 },
+        end: Position { line: 4, column: 8 }
+      },
+      range: [ 0, 29 ],
+      body: [
+        Node {
+          type: 'VariableDeclaration',
+          start: 1,
+          end: 10,
+          loc: [SourceLocation],
+          range: [Array],
+          declarations: [Array],
+          kind: 'var'
+        },
+        Node {
+          type: 'VariableDeclaration',
+          start: 11,
+          end: 20,
+          loc: [SourceLocation],
+          range: [Array],
+          declarations: [Array],
+          kind: 'let'
+        }
+      ],
+      sourceType: 'module'
+    }
+
+      at getVars (03-wheel/build_tools/rollup/prototype/begin/ast.js:9:11)
+

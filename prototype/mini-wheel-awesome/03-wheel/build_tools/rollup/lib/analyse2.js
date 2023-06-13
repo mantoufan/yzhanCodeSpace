@@ -13,6 +13,10 @@ module.exports = (ast, magicString) => {
       },
       _dependsOn: {
         value: {}
+      },
+      _included: {
+        value: {},
+        writable: true
       }
     })
     statement._defines = Object.create(null)

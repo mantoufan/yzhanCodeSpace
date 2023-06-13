@@ -32,7 +32,7 @@ describe('测试 Module', () => {
             })
 
             it('多条import', () => {
-                const code = `import {a as aa }  from '../module';import {b }  from '../module2'`
+                const code = `import {a as aa}  from '../module';import {b}  from '../module2'`
                 const module = new Module({ code })
                 expect(module.imports).toEqual({
                     aa: {
@@ -79,21 +79,50 @@ describe('测试 Module', () => {
         })
     })
 
-//     describe('ExpandAllStatement', () => {
-//         it('基础', () => {
-//             const code =
-//                 `const a = () =>  1;
-// const b = () => 2;
-// a();`
-//             const module = new Module({ code })
-//             const statements = module.expandAllStatement()
-//             expect(statements.length).toBe(2)
+    describe('ExpandAllStatement', () => {
+        it('基础', () => {
+            const code =
+                `const a = () =>  1;
+const b = () => 2;
+a();`
+            const module = new Module({ code })
+            const statements = module.expandAllStatement()
+            expect(statements.length).toBe(2)
 
-//             expect(module.code.snip(statements[0].start, statements[0].end).toString()).toEqual(`const a = () =>  1;`)
-//             expect(module.code.snip(statements[1].start, statements[1].end).toString()).toEqual(`a();`)
+            expect(module.code.snip(statements[0].start, statements[0].end).toString()).toEqual(`const a = () =>  1;`)
+            expect(module.code.snip(statements[1].start, statements[1].end).toString()).toEqual(`a();`)
 
-//         })
+        })
+        it('多次调用', () => {
+            const code =
+                `const a = () =>  1;
+const b = () => 2;
+a();
+a();`
+            const module = new Module({ code })
+            const statements = module.expandAllStatement()
+            expect(statements.length).toBe(3)
 
+            expect(module.code.snip(statements[0].start, statements[0].end).toString()).toEqual(`const a = () =>  1;`)
+            expect(module.code.snip(statements[1].start, statements[1].end).toString()).toEqual(`a();`)
+            expect(module.code.snip(statements[2].start, statements[2].end).toString()).toEqual(`a();`)
+        })
+        it('更复杂的多次调用', () => {
+            const code =
+                `const a = () =>  1;
+const b = () => 2;
+a();
+a();
+b();`
+            const module = new Module({ code })
+            const statements = module.expandAllStatement()
+            expect(statements.length).toBe(5)
 
-//     })
+            expect(module.code.snip(statements[0].start, statements[0].end).toString()).toEqual(`const a = () =>  1;`)
+            expect(module.code.snip(statements[1].start, statements[1].end).toString()).toEqual(`a();`)
+            expect(module.code.snip(statements[2].start, statements[2].end).toString()).toEqual(`a();`)
+            expect(module.code.snip(statements[3].start, statements[3].end).toString()).toEqual(`const b = () => 2;`)
+            expect(module.code.snip(statements[4].start, statements[4].end).toString()).toEqual(`b();`)
+        })
+    })
 })

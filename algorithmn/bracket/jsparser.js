@@ -1,5 +1,6 @@
 const { Reference } = require('./lib/Reference')
 const { Enviroment } = require('./lib/Environment')
+const  Completion = require('./lib/Completion')
 /*
 正则
 <NumberLiteral> ::= /^(-{0,1}{1-9}{1}{0-9}{0,}|0\.{0-9}{0,})$/
@@ -12,8 +13,16 @@ const { Enviroment } = require('./lib/Environment')
 <Identifier> ::= /^[_&A-Za-z][_&A-Za-z0-9\u200C\u200D]{0,}$/
 */
 function regHelp() {
-  const reg = /(?<NumberLiteral>(?:0[xX][0-9a-fA-F]*|\.[0-9]+|(?:[1-9]+[0-9]*|0)(?:\.[0-9]*|\.)?)(?:[eE][+-]{0,1}[0-9]+)?(?![_$a-zA-Z0-9]))|(?<NulLiteral>null(?![_$a-zA-Z0-9]))|(?<BooleanLiteral>(?:true|false)(?![_$a-zA-Z0-9]))|(?<StringLiteral>"(?:[^"\n\\\r\u2028\u2029]|\\(?:['"\\bfnrtv\n\r\u2028\u2029]|\r\n)|\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4}|\\[^0-9ux'"\\bfnrtv\n\\\r\u2028\u2029])*"|'(?:[^'\n\\\r\u2028\u2029]|\\(?:['"\\bfnrtv\n\r\u2028\u2029]|\r\n)|\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4}|\\[^0-9ux'"\\bfnrtv\n\\\r\u2028\u2029])*')|((?<Punctuator>>>>=|>>=|<<=|===|!==|>>>|<<|%=|\*=|-=|\+=|<=|>=|==|!=|\^=|\|=|\|\||&&|&=|>>|\+\+|--|\:|}|\*|&|\||\^|!|~|-|\+|\?|%|=|>|<|,|;|\.(?![0-9])|\]|\[|\)|\(|{))|(?<Keywords>break(?![_$a-zA-Z0-9])|else(?![_$a-zA-Z0-9])|new(?![_$a-zA-Z0-9])|var(?![_$a-zA-Z0-9])|let(?![_$a-zA-Z0-9])|const(?![_$a-zA-Z0-9])|case(?![_$a-zA-Z0-9])|finally(?![_$a-zA-Z0-9])|return(?![_$a-zA-Z0-9])|void(?![_$a-zA-Z0-9])|catch(?![_$a-zA-Z0-9])|for(?![_$a-zA-Z0-9])|switch(?![_$a-zA-Z0-9])|while(?![_$a-zA-Z0-9])|continue(?![_$a-zA-Z0-9])|function(?![_$a-zA-Z0-9])|this(?![_$a-zA-Z0-9])|with(?![_$a-zA-Z0-9])|default(?![_$a-zA-Z0-9])|if(?![_$a-zA-Z0-9])|throw(?![_$a-zA-Z0-9])|delete(?![_$a-zA-Z0-9])|in(?![_$a-zA-Z0-9])|try(?![_$a-zA-Z0-9])|do(?![_$a-zA-Z0-9])|instanceof(?![_$a-zA-Z0-9])|typeof(?![_$a-zA-Z0-9]))|(?<LineTerminator>(?:\n))|(?<Identifier>[_&A-Za-z][_&A-Za-z0-9\\u200C\\u200D]{0,})/g
-  return reg
+  return new RegExp(`
+  (?<NumberLiteral>(?:0[xX][0-9a-fA-F]*|\\.[0-9]+|(?:[1-9]+[0-9]*|0)(?:\\.[0-9]*|\\.)?)(?:[eE][+-]{0,1}[0-9]+)?(?![_$a-zA-Z0-9]))|
+  (?<NulLiteral>null(?![_$a-zA-Z0-9]))|
+  (?<BooleanLiteral>(?:true|false)(?![_$a-zA-Z0-9]))|
+  (?<StringLiteral>"(?:[^"\\n\\\\\\r\\u2028\\u2029]|\\\\(?:['"\\\\bfnrtv\\n\\r\\u2028\\u2029]|\\r\\n)|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}|\\\\[^0-9ux'"\\\\bfnrtv\\n\\\\\\r\\u2028\\u2029])*"|'(?:[^'\\n\\\\\\r\\u2028\\u2029]|\\\\(?:['"\\\\bfnrtv\\n\\r\\u2028\\u2029]|\\r\\n)|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}|\\\\[^0-9ux'"\\\\bfnrtv\\n\\\\\\r\\u2028\\u2029])*')|
+  (?<Punctuator>>>>=|>>=|<<=|===|!==|>>>|<<|%=|\\*=|-=|\\+=|<=|>=|==|!=|\\^=|\\|=|\\|\\||&&|&=|>>|\\+\\+|--|\\:|}|\\*|&|\\||\\^|!|~|-|\\+|\\?|%|=|>|<|,|;|\\.(?![0-9])|\\]|\\[|\\)|\\(|{)|
+  (?<Keywords>break(?![_$a-zA-Z0-9])|else(?![_$a-zA-Z0-9])|new(?![_$a-zA-Z0-9])|var(?![_$a-zA-Z0-9])|let(?![_$a-zA-Z0-9])|const(?![_$a-zA-Z0-9])|case(?![_$a-zA-Z0-9])|finally(?![_$a-zA-Z0-9])|return(?![_$a-zA-Z0-9])|void(?![_$a-zA-Z0-9])|catch(?![_$a-zA-Z0-9])|for(?![_$a-zA-Z0-9])|switch(?![_$a-zA-Z0-9])|while(?![_$a-zA-Z0-9])|continue(?![_$a-zA-Z0-9])|function(?![_$a-zA-Z0-9])|this(?![_$a-zA-Z0-9])|with(?![_$a-zA-Z0-9])|default(?![_$a-zA-Z0-9])|if(?![_$a-zA-Z0-9])|throw(?![_$a-zA-Z0-9])|delete(?![_$a-zA-Z0-9])|in(?![_$a-zA-Z0-9])|try(?![_$a-zA-Z0-9])|do(?![_$a-zA-Z0-9])|instanceof(?![_$a-zA-Z0-9])|typeof(?![_$a-zA-Z0-9]))|
+  (?<LineTerminator>(?:\\n))|
+  (?<Identifier>[_&A-Za-z][_&A-Za-z0-9\\\\u200C\\\\u200D]{0,})
+  `.replace(/\s+/g, ''), 'g')
 }
 
 function parseStr(str) {
@@ -233,7 +242,7 @@ function parseExpression(list, map, initialState) {
         })
         return shift(symbol)
       }
-      throw Error('syntax error')
+      throw Error('syntax error' + ' type ' + symbol.type)
     }
     stack.push(symbol)
     stateStack.push(stateStack[stateStack.length - 1][symbol.type])
@@ -275,26 +284,34 @@ const evaluator = {
     return evaluate(node.children[0])
   },
   StatementListItem(node) {
-    return evaluate(node.children[0])
+    return new Completion('normal', evaluate(node.children[0]))
   },
   StatementList(node) {
     if (node.children.length === 1) {
       return evaluate(node.children[0])
     }
-    evaluate(node.children[0])
-    return evaluate(node.children[1])
+    const completion = evaluate(node.children[0])
+    if (completion.type === 'normal') {
+      return evaluate(node.children[1])
+    }
+    return completion
   },
   Statement(node) {
     return evaluate(node.children[0])
   },
   ExpressionStatement(node) {
-    return evaluate(node.children[0])
+    return new Completion('normal', evaluate(node.children[0]))
+  },
+  BreakStatement(node) {
+    return new Completion('break')
   },
   IfStatement(node) {
     const flag = evaluate(node.children[2])
     if (node.children.length === 5) {
       if (flag) {
         evaluate(node.children[4])
+      } else {
+        return new Completion('normal')
       }
     } else {
       if (flag) {
@@ -312,7 +329,10 @@ const evaluator = {
       const cycleBody = node.children[8]
       evaluate(initialExpression)
       while (evaluate(conditionalExpression)) {
-        evaluate(cycleBody)
+        const completion = evaluate(cycleBody)
+        if (completion.type === 'break') {
+          return new Completion('normal')
+        }
         evaluate(finalExpression)
       }
     }
@@ -325,13 +345,37 @@ const evaluator = {
   BlockStatement(node) {
     if (node.children.length === 3) {
       this.envStack.push(new Enviroment(this.currentEnv))
-      const res = evaluate(node.children[1])
+      const ref = evaluate(node.children[1])
       this.envStack.pop()
-      return res
+      return ref
     }
+    return new Completion('normal')
   },
   Expression(node) {
     return evaluate(node.children[0])
+  },
+  UpdateExpression(node) {
+    const len = node.children.length
+    if (len === 1) return evaluate(node.children[0])
+    if (node.children[0].type=== '++') { // ++i
+      const ref = evaluate(node.children[1])
+      ref.set(ref.get() + 1)
+      return ref.get()
+    } else if (node.children[0].type=== '--') { // --i
+      const ref = evaluate(node.children[1])
+      ref.set(ref.get() - 1)
+      return ref.get()
+    } else if (node.children[1].type=== '++') { // i++
+      const ref = evaluate(node.children[0])
+      const value = ref.get()
+      ref.set(ref.get() + 1)
+      return value
+    } else if (node.children[1].type=== '--') { // i--
+      const ref = evaluate(node.children[0])
+      const value = ref.get()
+      ref.set(ref.get() - 1)
+      return value
+    }
   },
   NewExpression(node) {
     if (node.children.length === 1) {
@@ -345,6 +389,49 @@ const evaluator = {
       const ref = evaluate(node.children[0])
       const result = evaluate(node.children[2])
       ref.set(result)
+    }
+  },
+  EqualityExpression(node) {
+    if (node.children.length === 1) {
+      return evaluate(node.children[0])
+    } else {
+      let left = evaluate(node.children[0])
+      if (left instanceof Reference) {
+        left = left.get()
+      }
+      let right = evaluate(node.children[2])
+      if (right instanceof Reference) {
+        right = right.get()
+      }
+      const type = node.children[1].type
+      if (type === '==') {
+        return left == right
+      } else if (type === '!=') {
+        return left != right
+      } else if (type === '===') {
+        return left === right
+      }  else if (type === '!==') {
+        return left !== right
+      }
+    }
+  },
+  RelationalExpression(node) {
+    if (node.children.length === 1) {
+      return evaluate(node.children[0])
+    } else {
+      let left = evaluate(node.children[0])
+      if (left instanceof Reference) {
+        left = left.get()
+      }
+      let right = evaluate(node.children[2])
+      if (right instanceof Reference) {
+        right = right.get()
+      }
+      if (node.children[1].type === '>') {
+        return left > right
+      } else {
+        return left < right
+      }
     }
   },
   AdditiveExpression(node) {

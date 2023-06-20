@@ -1,5 +1,6 @@
 const walk = require('./walk3')
 const Scope = require('./scope2')
+
 module.exports = (ast, magicString) => {
   const root = new Scope({})
   let scope = root
@@ -17,7 +18,8 @@ module.exports = (ast, magicString) => {
       _included: {
         value: {},
         writable: true
-      }
+      },
+      _source: { value: magicString.snip(statement.start, statement.end) },
     })
     statement._defines = Object.create(null)
     walk(statement, {

@@ -17,10 +17,12 @@ module.exports = class {
   imports = Object.create(null)
   exports = Object.create(null)
   definitions = Object.create(null)
-  constructor({ code }) {
+  constructor({ code, path, bundle }) {
     const { ast, magicString } = getCode(code)
     this.code = magicString
-    analyse(ast)
+    this.path = path
+    this.bundle = bundle
+    analyse(ast, magicString)
     ast.body.forEach(statement => {
       if (statement._defines !== void 0) {
         const _defines = Object.keys(statement._defines)
@@ -74,9 +76,16 @@ module.exports = class {
     return statements
   }
   define(name) {
-    const statement = this.definitions[name]
-    if (statement._included === true) return []
-    statement._included = true
-    return [statement]
+    if (Object.prototype.hasOwnProperty.call(this.imports, name)) {
+      const { name: importName, source } = this.imports[name]
+      const module = this.bundle.fetchModule(source, this.path) //  module
+      const { localName } = module.exports[importName]
+      return module.define(localName)
+    } else {
+      const statement = this.definitions[name]
+      if (statement === void 0 || statement._included === true) return []
+      statement._included = true
+      return [statement]
+    }
   }
 }

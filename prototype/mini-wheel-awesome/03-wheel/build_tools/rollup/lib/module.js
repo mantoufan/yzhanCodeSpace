@@ -58,7 +58,7 @@ class Module {
         })
     }
 
-    expandAllStatement() {
+    expandAllStatement() { // 组装
         const allStatements = []
 
         this.ast.body.forEach(statement => {

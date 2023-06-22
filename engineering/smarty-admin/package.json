@@ -1,0 +1,35 @@
+{
+  "name": "smarty-admin",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@iconify/json": "^2.2.81",
+    "@types/nprogress": "^0.2.0",
+    "@unocss/preset-icons": "^0.53.1",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "pinia": "^2.1.4",
+    "unocss": "^0.53.1",
+    "vite": "^4.3.9",
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.2"
+  },
+  "dependencies": {
+    "@intlify/unplugin-vue-i18n": "^0.11.0",
+    "@vueuse/core": "^10.2.0",
+    "@vueuse/head": "^1.1.26",
+    "nprogress": "^0.2.0",
+    "unplugin-auto-import": "^0.16.4",
+    "unplugin-vue-components": "^0.25.1",
+    "vite-plugin-pages": "^0.31.0",
+    "vite-plugin-vue-layouts": "^0.8.0",
+    "vue-i18n": "^9.2.2"
+  }
+}

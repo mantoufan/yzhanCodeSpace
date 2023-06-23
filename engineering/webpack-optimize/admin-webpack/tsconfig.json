@@ -1,0 +1,40 @@
+{ 
+  "compilerOptions": { 
+      "target": "es5", // 指定编译后的ECMAScript目标版本： 'ES3' (default), 
+      "module": "esnext", // 用来指定要使用的模块标准: 'none', 'commonjs', 'a 
+      "strict": true, // 启用所有严格类型检查选项。 
+      "jsx": "preserve", // 指定jsx代码用于的开发环境: 'preserve', 'react-nat 
+      "importHelpers": true, // 从 tslib 导入辅助工具函数（比如 __extends， _ 
+      "moduleResolution": "node", // 用于选择模块解析策略，有'node'和'classic 
+      "experimentalDecorators": true, // 模块名到基于 baseUrl的路径映射的列表
+      "skipLibCheck": true, // 忽略所有的声明文件（ *.d.ts）的类型检查。
+      "esModuleInterop": true, // 支持在 CommonJs 模块下使用 import d from 
+      "allowSyntheticDefaultImports": true, // 允许从没有设置默认导出的模块中默
+      "sourceMap": true, // 生成相应的 .map文件。 
+      "baseUrl": ".", // 解析非相对模块名的基准目录, 相对模块不会受baseUrl的影响
+      "paths": { 
+          // 用于设置模块名称到基于baseUrl的路径映射 
+          "@/*": [ 
+              "src/*" 
+          ] 
+      }, 
+      "lib": [ 
+          "esnext", 
+          "dom", 
+          "dom.iterable", 
+          "scripthost" 
+      ] // lib用于指定要包含在编译中的库文件 
+  }, 
+  "include": [ 
+    "src/**/*.ts", 
+    "src/**/*.tsx", 
+    "src/**/*.vue", 
+    "tests/**/*.ts", 
+    "tests/**/*.tsx", 
+    "types/**/*.d.ts", 
+    "types/*.d.ts" 
+  ], // 指定要编译的路径列表，但是和files的区别在于，这里的路径可以是文件夹，也可以是
+  "exclude": [ 
+    "node_modules" 
+  ] // exclude表示要排除的、不编译的文件，它也可以指定一个列表，规则和include一样，
+}

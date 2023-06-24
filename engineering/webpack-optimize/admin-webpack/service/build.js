@@ -12,6 +12,7 @@ const devOptimization = require('./config/devOptimization')
 const evalSourceMap = require('./config/evalSourceMap')
 const quickMinify = require('./config/quickMinify')
 const swcLoader = require('./config/swcloader')
+const bundleAnalyzer = require('./config/bundleAnalyzer')
 // 添加缓存
 // base = cache(base)
 // 添加速度测量
@@ -37,7 +38,9 @@ const swcLoader = require('./config/swcloader')
 // 压缩：quickMinify
 // base = quickMinify(base)
 // 高效：swcLoader
-base = swcLoader(base)
+// base = swcLoader(base)
+// 分析：bundleAnalyzerPlugin
+base = bundleAnalyzer(base)
 base.mode = 'production'
 
 module.exports = base

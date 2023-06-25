@@ -28,6 +28,7 @@
     "express-static": "^1.2.6",
     "happypack": "^5.0.1",
     "html-webpack-plugin": "^5.5.3",
+    "image-webpack-loader": "^8.1.0",
     "pinia": "^2.1.4",
     "postcss": "^8.4.24",
     "postcss-loader": "^7.3.3",

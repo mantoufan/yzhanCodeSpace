@@ -1,11 +1,14 @@
-export function createStore (reducer) {
+export function createStore (reducer, enhancer) {
+  if (enhancer) {
+    return enhancer(createStore)(reducer)
+  }
   let currentState
   const currentListeners = []
 
   function getState() {
     return currentState
   }
-  function dispatch(action) {
+  function dispatch(action, getState) {
     currentState = reducer(currentState, action)
     currentListeners.forEach(listener => listener())
   }

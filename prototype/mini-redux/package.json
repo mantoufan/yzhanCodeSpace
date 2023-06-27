@@ -9,6 +9,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
+    "redux-logger": "^3.0.6",
+    "redux-thunk": "^2.4.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -36,6 +38,10 @@
     ]
   },
   "devDependencies": {
-    "redux": "^4.2.1"
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "is-promise": "^4.0.0",
+    "react-redux": "^8.1.1",
+    "redux": "^4.2.1",
+    "redux-promise": "^0.6.0"
   }
 }

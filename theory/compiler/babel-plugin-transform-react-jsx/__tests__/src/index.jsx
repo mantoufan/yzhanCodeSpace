@@ -1,0 +1,1 @@
+<div className="omg_className">text</div>

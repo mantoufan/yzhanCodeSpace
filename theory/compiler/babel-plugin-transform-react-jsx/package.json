@@ -1,0 +1,15 @@
+{
+  "name": "babel-plugin-transform-react-jsx",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.22.5",
+    "@babel/plugin-syntax-jsx": "^7.22.5"
+  },
+  "scripts": {
+    "test": "node ./__tests__/babel-plugin-transform-react-jsx.spec.js"
+  },
+  "author": "",
+  "description": ""
+}

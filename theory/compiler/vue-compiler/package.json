@@ -1,0 +1,13 @@
+{
+  "name": "vue-compiler",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "test": "node __tests__/vue-compiler.spec.js"
+  },
+  "devDependencies": {
+    "@vue/compiler-core": "^3.3.4",
+    "@vue/shared": "^3.3.4"
+  }
+}

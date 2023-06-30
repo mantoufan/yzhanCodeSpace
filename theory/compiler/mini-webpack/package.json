@@ -1,0 +1,21 @@
+{
+  "name": "mini-webpack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "mini-webpack.js",
+  "scripts": {
+    "test": "node __tests__/mini-webpack.spec.js",
+    "dev": "http-server __tests__"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.22.5",
+    "@babel/parser": "^7.22.5",
+    "@babel/preset-env": "^7.22.5",
+    "@babel/preset-react": "^7.22.5",
+    "@babel/traverse": "^7.22.5",
+    "http-server": "^14.1.1"
+  }
+}

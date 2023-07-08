@@ -1,0 +1,10 @@
+#!/usr/bin/env node 
+const { spawn } = require('node:child_process')
+const process = require('node:process')
+const childProcess = spawn('./run')
+process.stdout.write('\x1B[31m')
+childProcess.stdout.pipe(process.stdout)
+childProcess.on('close', code => {
+  console.log(`child process exited with code ${code}`);
+}); 
+

@@ -5,8 +5,8 @@
   Component,
   useReducer,
   useState,
-  // useEffect,
-  // useLayoutEffect
+  useEffect,
+  useLayoutEffect
  } from '../src/react'
 import ReactDOM from '../src/react-dom'
 
@@ -15,8 +15,7 @@ export {
   ReactDOM,
   Component,
   useReducer,
-  useState
-  // useState,
-  // useEffect,
-  // useLayoutEffect
+  useState,
+  useEffect,
+  useLayoutEffect
  }

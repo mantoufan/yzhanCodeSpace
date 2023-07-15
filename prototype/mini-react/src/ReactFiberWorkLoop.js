@@ -72,7 +72,7 @@ function commitRoot() {
 
 function commitWorker(workInProgress) {
   if (workInProgress === null) return
-  console.log('workInProgress', workInProgress)
+  // console.log('workInProgress', workInProgress)
   // 1. 提交自己（将 vnode 更新到真实 dom）
   const parentNode = getParentNode(workInProgress.return)
   const { flags, stateNode } = workInProgress
@@ -81,7 +81,7 @@ function commitWorker(workInProgress) {
     // 0 1 2 3 4
     // 2 1 3 4
     const before = getHostSibling(workInProgress.sibling)
-    console.log('before', before)
+    // console.log('before', before)
     insertOrAppendPlacementNode(stateNode, before, parentNode)
   }
   if (flags & Update && stateNode) { // 节点更新
@@ -91,6 +91,11 @@ function commitWorker(workInProgress) {
 
   if (workInProgress.deletions) { // 删除 workInProgress 的子节点
     commitDeletions(workInProgress.deletions, stateNode || parentNode)
+  }
+
+  if (workInProgress.tag === FunctionComponent) {
+    // invoke Hooks
+    invokeHooks(workInProgress)
   }
 
   // 2. 提交子节点
@@ -136,4 +141,16 @@ function getHostSibling(sibling) {
 function insertOrAppendPlacementNode(stateNode, before, parentNode) {
   if (before) parentNode.insertBefore(stateNode, before)
   else parentNode.appendChild(stateNode)
+}
+
+function invokeHooks(workInProgress) {
+  const { updateQueueOfEffect, updateQueueOfLayout } = workInProgress
+  for (let i = 0; i < updateQueueOfLayout.length; i++) {
+    const effect = updateQueueOfLayout[i]
+    effect.create()
+  }
+  for (let i = 0; i < updateQueueOfEffect.length; i++) {
+    const effect = updateQueueOfEffect[i]
+    scheduleCallback(effect.create)
+  }
 }

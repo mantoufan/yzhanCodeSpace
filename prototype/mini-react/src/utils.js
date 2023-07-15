@@ -7,6 +7,10 @@ export const Update = 0b00000000000000000000000100
 // 删除
 export const Deletion = 0b00000000000000000000001000
 
+// HookFlags
+export const HookLayout = 0b010
+export const HookPassive = 0b100
+
 export function isStr(s) {
   return typeof s === 'string'
 }
@@ -46,4 +50,12 @@ export function updateNode(node, prevVal, nextVal) {
       node[k] = nextVal[k]
     }
   })
+}
+
+export function areHookInputsEqual(nextDeps, prevDeps) {
+  if (prevDeps === null) return false
+  for (let i = 0; i < prevDeps.length; i++) {
+    if (Object.is(prevDeps[i], nextDeps[i]) === false) return false
+  }
+  return true
 }

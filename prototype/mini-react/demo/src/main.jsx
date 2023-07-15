@@ -1,9 +1,16 @@
-import { Component, useReducer, ReactDOM, useState } from '../which-react'
+import { Component, useReducer, ReactDOM, useState, useEffect, useLayoutEffect } from '../which-react'
 import './index.css'
 
 function FunctionComponent(props) {
   const [count, setCount] = useReducer(v => v + 1, 0)
   const [count2, setCount2] = useState(4)
+  useEffect(() => {
+    console.log('omg useEffect', count2)
+  }, [])
+
+  useLayoutEffect(() => {
+    console.log('omg useLayoutEffect', count2)
+  }, [count2])
   return (
     <div className='border'>
       <p>{props.name}</p>

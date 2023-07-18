@@ -48,4 +48,4 @@ pa
 #### Challenge 4
 > {} [] () will display in a matched pair
 
-<production> ::= '{' '}' | '[' ']' | '(' ')' | '{' <production> '}' | '[' <production> ']' | '(' <production> ')'
+<brackets> ::= '' | '(' <brackets> ')' <brackets> | '[' <brackets> ']' <brackets> | '{' <brackets> '}' <brackets> 

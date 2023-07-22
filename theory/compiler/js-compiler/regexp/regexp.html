@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  String:
+  <textarea id="str"></textarea>
+  RegExp:
+  <textarea id="reg"></textarea>
+  <button>Test</button>
+  <script>
+    var str = document.getElementById('str').value;
+    var reg = document.getElementById('reg').value;
+    function test() {
+      const regExp = new RegExp(reg);
+      console.log(regExp.test(str))
+    }
+  </script>
+</body>
+
+</html>

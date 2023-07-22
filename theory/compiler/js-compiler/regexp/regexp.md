@@ -43,3 +43,32 @@ BIG5  台湾，繁体中文，标准
 
 // exec
 // 可以把多个匹配，一个个匹配出来
+
+## JavaScript 基本语法单元
+Literal 字面量  
+- Literally 会比 Literal 用得多  
+StringLiteral 字符串字面量
+
+### 关键字
+// function try catch finally let const var
+// break continue static switch case async await
+// this class extends for super yield with
+// return typeof instantof do while in delete enum
+// throw debugger void true false if else import export
+### Punctuators （符号）
+运算符 operator
+一元运算符
+二元运算符
++ - * / % > <
+位运算符
+^ ~ & |
+逻辑运算符
+! || &&
+赋值运算符
+&&= &= ||= |=
+比较运算符
+>= <= == === != !==
+非运算符
+~
+Identifier
+_ or $ [A-Z][a-z] 开头

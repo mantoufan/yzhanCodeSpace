@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux"
 import { Navigate, useLocation } from "react-router-dom"
-import { login } from "../action/user-co"
+import { login } from "../action/user-saga"
 
 export default function LoginPage() {
   const user = useSelector(({ user }) => user)

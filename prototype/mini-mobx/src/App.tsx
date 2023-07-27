@@ -10,6 +10,8 @@ import CountPage from './pages/CountPage'
 import TodoListPage from './pages/TodoListPage'
 import TimerPage from './pages/TimerPage'
 import './App.css'
+import ProviderPage from './pages/ProviderPage'
+import InjectPage from './pages/InjectPage'
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
             <Route path='/count' element={<CountPage />} />
             <Route path='/todoList' element={<TodoListPage />} />
             <Route path='/timer' element={<TimerPage />} />
+            <Route path='/provider' element={<ProviderPage />} />
+            <Route path='/inject' element={<InjectPage />} />
           </Route>
         </Routes>
       </Router>
@@ -40,6 +44,12 @@ function Layout() {
           </li>
           <li>
             <Link to='/timer'>Timer</Link>
+          </li>
+          <li>
+            <Link to='/provider'>Provider</Link>
+          </li>
+          <li>
+            <Link to='/inject'>Inject</Link>
           </li>
         </ul>
       </nav>

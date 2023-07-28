@@ -1,11 +1,12 @@
-import { action, makeAutoObservable, observable } from "../which"
+import { action, makeAutoObservable, makeObservable, observable } from "../which"
 
 class Count {
   constructor() {
-    makeAutoObservable(this, {
-      num: observable,
-      add: action
-    })
+    makeAutoObservable(this)
+    // makeObservable(this, {
+    //   num: observable,
+    //   add: action
+    // })
   }
   num = 0
   add = () => {

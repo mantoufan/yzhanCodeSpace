@@ -37,7 +37,7 @@ export default function useObserver<T>(fn: () => T, baseComponentName: string = 
 
   // uninstall the reaction
   useEffect(() => () => {
-    reactionTrackingRef.current?.reaction.dispose()
+    // reactionTrackingRef.current?.reaction.dispose()
     reactionTrackingRef.current = null
   }, [])
   return rendering

@@ -1,11 +1,13 @@
-import { makeAutoObservable, action, observable, computed, Reaction, AnnotationsMap } from 'mobx';
-// import { observer, Observer, useLocalObservable } from './mini-mobx-react-lite'
+import { computed } from 'mobx';
+
+import { makeObservable, makeAutoObservable, observable, action, Reaction, AnnotationsMap } from './mini-mobx'
 
 import { observer, Observer, useLocalObservable, MobXProviderContext, Provider, inject } from './mini-mobx-react'
 
 export type { AnnotationsMap }
 
 export {
+  makeObservable,
   makeAutoObservable,
   observer,
   action,

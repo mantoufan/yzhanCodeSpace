@@ -1,4 +1,4 @@
-import { useObserver } from "mobx-react-lite"
+import useObserver from "./useObserver"
 
 interface IObserverProps {
   children?(): React.element | null,

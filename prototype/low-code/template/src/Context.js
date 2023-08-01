@@ -1,0 +1,1 @@
+export const CanvasContext = React.createContext()

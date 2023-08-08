@@ -1,19 +1,24 @@
-const f = document.createElement('IFRAME');document.body.appendChild(f)
-const urlPromises = Array.from(new Set(Array.from(document.querySelectorAll('.toc a')).map(e => e.href.split('#')[0]))).map(href => ()=>new Promise(resolve => (f.src = href, f.onload = ()=>{resolve(Array.from(f.contentDocument.querySelectorAll('.idl')).map(e=>e.innerText))})))
-const ans = []
-;(async function () {
+// pls run this code on the console of https://html.spec.whatwg.org/
+const f = document.createElement('IFRAME'); document.body.appendChild(f)
+const urls = Array.from(new Set(Array.from(document.querySelectorAll('.tr-list__item__header a')).map(e => e.href)))
+const urlPromises = urls.map(href => () => new Promise(resolve => (f.src = href, f.onload = ()=>{resolve(Array.from(f.contentDocument.querySelectorAll('.propdef')))})))
+const n = urlPromises.length
+const graph = Object.create(null)
+let i = 0
+;(async () => {
   for (const urlPromise of urlPromises) {
-   const res = await urlPromise()
-   console.log(res)
-   ans.push(...res)
+   console.log('crawling:', i + 1, '/', n, ' ', urls[i++])
+   const tables = await urlPromise()
+   for (const table of tables) {
+      try {
+        const names = table.rows[0].cells[1].innerText.split(', ')
+        for (const name of names) {
+          const values = table.rows[1].cells[1].innerText.split(' | ')
+          if (graph[name] === void 0) graph[name] = []
+          graph[name].push(...values)
+        }
+      } catch (error){ console.log(error) }
+   }
   }
-  document.body.innerHTML = '<pre><code>' + ans.join('</code></pre><br><pre><code>') + '</code></pre>'
+  console.log(graph)
 })()
-
-// Get Type List using RegExp
-const type = `[Exposed=(Window,Worker)]
-interface DOMStringList {
-  readonly attribute unsigned long length;
-  getter DOMString? item(unsigned long index);
-  boolean contains(DOMString string);
-};`.replace(/^[\s\S]*interface (\w+) [\s\S]*$/, '$1')

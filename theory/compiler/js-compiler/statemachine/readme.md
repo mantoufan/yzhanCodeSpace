@@ -46,3 +46,6 @@ while(1) { // 如果程序不会结束，就用死循环
 1. generator
 2. function 函数
 3. 函数对象 《Exceptional C++》 用函数指针实现状态机
+
+#### 合法字符串
+'|" 

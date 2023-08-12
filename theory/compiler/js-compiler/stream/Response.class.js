@@ -1,4 +1,4 @@
-class Response {
+module.exports = class Response {
   constructor() {
     this.statusCode = ''
     this.httpVersion = ''

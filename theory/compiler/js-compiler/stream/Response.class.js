@@ -4,7 +4,6 @@ module.exports = class Response {
     this.httpVersion = ''
     this.statusText = ''
     this.headers = Object.create(null)
-    this.body = ''
   }
   setStatusCode(statusCode) {
     this.statusCode = statusCode

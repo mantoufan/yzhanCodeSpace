@@ -1,6 +1,6 @@
 const { EventEmitter } = require("node:events")
 const Response = require("./Response.class.js")
-
+const ChunkedBodyParser = require("./bodyParser/ChunkedBodyParser.class.js")
 const EOF = Symbol('EOF')
 
 // 封装
@@ -46,13 +46,23 @@ module.exports = class ResponseParser extends EventEmitter {
     }
     
     function afterHeader(char) {
-      if (char === '\n') return afterEmptyLine
+      if (char === '\n') {
+        if (this.response.headers['Transfer-Encoding'] === 'chunked') {
+          this.bodyParser = new ChunkedBodyParser()
+          this.bodyParser.pipe(process.stdout)
+        }
+        if (this.response.headers['Content-Type'] === 'text/html') {
+          // this.contentParser = new HtmlParser()
+          // this.bodyParser.pipe(this.contentParser)
+        }
+        return afterEmptyLine
+      }
       return afterHeader
     }
     
     function afterEmptyLine(char) {
       if (char === EOF) return success
-      this.response.body += char
+      this.bodyParser.write(charToChunk(char))
       return afterEmptyLine
     }
     
@@ -74,4 +84,7 @@ module.exports = class ResponseParser extends EventEmitter {
   receiveChar(char) {
     this.state = this.state(char)
   }
+}
+function charToChunk(char) {
+  return char.length.toString(16) + '\r\n' + char + '\r\n'
 }

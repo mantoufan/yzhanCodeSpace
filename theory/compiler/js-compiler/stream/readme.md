@@ -15,3 +15,10 @@
 输入流，输出流
 
 3. receive()
+
+## Reconsume 重用，重写
+```javascript 
+function d_first(char) {
+  return d2(char)
+}
+```

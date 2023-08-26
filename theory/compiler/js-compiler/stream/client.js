@@ -1,5 +1,5 @@
 const net = require('node:net')
-const ResponseParser = require('./statemachine')
+const ResponseParser = require('./responseParser/ResponseParser.class')
 const client = net.createConnection({ port: 8000 }, () => {
   console.log('connected')
   /**

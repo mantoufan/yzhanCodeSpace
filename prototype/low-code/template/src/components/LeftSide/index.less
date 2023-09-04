@@ -1,0 +1,39 @@
+.main {
+  z-index: 999;
+  position: absolute;
+  top: 0;
+  left: 80px;
+  width: 278px;
+  height: 100%;
+  padding: 20px 14px;
+  box-shadow: #ccc 1px 1px 10px;
+  background-color: white;
+
+  .box {
+    .item {
+      display: inline-block;
+      width: 120px;
+      height: 80px;
+      line-height: 80px;
+      overflow: hidden;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      text-align: center;
+      font-size: 20px;
+      &:nth-of-type(2n+1) {
+        margin-right: 10px;
+      }
+      &:hover {
+        font-weight: bold;
+        color: orange;
+        border-color: orange;
+      }
+    }
+  }
+
+  .desc {
+    height: 20px;
+    line-height: 20px;
+    font-size: 12px;
+  }
+}

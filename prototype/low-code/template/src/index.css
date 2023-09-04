@@ -15,6 +15,15 @@ body {
   height: 100%;
 }
 
+textarea {
+  outline: none;
+  resize: none;
+  font-family: unset;
+  scroll-behavior: unset;
+  overflow: hidden;
+  white-space: break-spaces;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
@@ -25,6 +34,7 @@ code {
   padding: 0;
   border: none;
   box-sizing: border-box;
+  outline: none;
 }
 
 select, input {
@@ -33,6 +43,7 @@ select, input {
   line-height: 28px;
   border: 1px solid #eee;
   padding: 0 6px;
+  outline: none;
 }
 
 input, button, a, select {

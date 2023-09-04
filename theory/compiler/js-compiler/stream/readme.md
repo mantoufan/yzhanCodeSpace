@@ -22,3 +22,10 @@ function d_first(char) {
   return d2(char)
 }
 ```
+
+## 单元测试
+```shell
+jest
+npx jest --coverage
+```
+

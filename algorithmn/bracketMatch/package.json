@@ -1,0 +1,12 @@
+{
+  "name": "bracketmatch",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.6.4"
+  },
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT"
+}

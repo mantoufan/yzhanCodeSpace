@@ -120,7 +120,6 @@ const stateStack = [states];
 let state = states;
 
 const shift = (symbol) => {
-  console.log(symbol.type);
   if (state[symbol.type]) {
     state = state[symbol.type];
     stateStack.push(state);

@@ -1,163 +1,151 @@
-
-const start = {
+const getTokens = require("./token");
+const { NonTerminalSymbol } = require("./symbol");
+const { EOFSymbol } = require("./symbol");
+const startState = {
   AdditiveExpression: {
-    EOF: { $end: true },
-    '+': {
+    EOF: {
+      $end: true,
+    },
+    "+": {
       MultiplicativeExpression: {
-        $reduce: 'AdditiveExpression'
-      }
-    }
+        $reduce: "AdditiveExpression",
+      },
+    },
+    "-": {
+      MultiplicativeExpression: {
+        $reduce: "AdditiveExpression",
+      },
+    },
   },
   MultiplicativeExpression: {
-    '*': {
-      MultiplicativeExpression: {
-        $reduce: 'AdditiveExpression'
-      }
-    }
+    $reduce: "AdditiveExpression",
+    "*": {
+      PrimaryExpression: {
+        $reduce: "MultiplicativeExpression",
+      },
+    },
   },
   PrimaryExpression: {
-    $reduce: 'MultiplicativeExpression'
+    $reduce: "MultiplicativeExpression",
   },
-  '(': {
+  "(": {
     AdditiveExpression: {
-      ')': {
-        $reduce: 'PrimaryExpression'
-      }
-    }
+      ")": {
+        $reduce: "PrimaryExpression",
+      },
+    },
   },
   Number: {
-    $reduce: 'primaryExpression'
-  }
-}
-const start1 = {
+    $reduce: "PrimaryExpression",
+  },
+};
+
+// Production Rules 产生式规则
+const productionRules = [
+  [
+    "AdditiveExpression",
+    [
+      ["MultiplicativeExpression"],
+      ["AdditiveExpression", "+", "MultiplicativeExpression"],
+      ["AdditiveExpression", "-", "MultiplicativeExpression"],
+    ],
+  ],
+  [
+    "MultiplicativeExpression",
+    [
+      ["PrimaryExpression"],
+      ["MultiplicativeExpression", "*", "PrimaryExpression"],
+    ],
+  ],
+  [
+    "MultiplicativeExpression",
+    [
+      ["PrimaryExpression"],
+      ["MultiplicativeExpression", "*", "PrimaryExpression"],
+    ],
+  ],
+  ["PrimaryExpression", [["(", "AdditiveExpression", ")"], ["Number"]]],
+];
+
+// Using Map to store Rules 将产生式规则存储到 Map
+const ruleMap = new Map(productionRules);
+
+// 初始状态
+const initialStart = {
   AdditiveExpression: {
-    EOF: { $end: true }
-  }
-}
-const rules = [
-  [
-    'AdditiveExpression', [
-      ['MultiplicativeExpression'], 
-      ['AdditiveExpression', '+', 'MultiplicativeExpression'], 
-      ['AdditiveExpression', '-', 'MultiplicativeExpression']
-    ]
-  ],
-  [
-    'MultiplicativeExpression', [
-      ['PrimaryExpression'],
-      [
-        'MultiplicativeExpression',
-        '*',
-        'PrimaryExpression'
-      ]
-    ]
-  ],
-  [
-    'MultiplicativeExpression', [
-      ['PrimaryExpression'],
-      [
-        'MultiplicativeExpression',
-        '*',
-        'PrimaryExpression'
-      ]
-    ]
-  ],
-  [
-    'PrimaryExpression', [
-      ['(', 'AdditiveExpression', ')'],
-      ['Number']
-    ]
-  ]
-]
+    EOF: { $end: true },
+  },
+};
 
-const ruleMap = new Map(rules)
+// Clousure
+const dictionary = new Map();
+const run = (state, ruleMap) => {
+  const hashCode = JSON.stringify(state);
+  if (dictionary.has(hashCode)) return dictionary.get(hashCode);
+  dictionary.set(hashCode, state);
 
-const run = state => {
-  const visited = new Set()
-  const queue = [...Object.keys(state)]
+  const visited = new Set();
+  const queue = [...Object.keys(state)];
   while (queue.length !== 0) {
-    const symbol = queue.shift()
-    if (visited.has(symbol)) continue
-    visited.add(symbol)
-    const current = ruleMap.get(symbol)
-    if (current === void 0) continue
+    const symbol = queue.shift();
+    if (visited.has(symbol)) continue;
+    visited.add(symbol);
+    const current = ruleMap.get(symbol);
+    if (current === void 0) continue;
     for (const ruleBody of current) {
-      let prev = state
-      queue.push(ruleBody[0])
+      let prev = state;
+      queue.push(ruleBody[0]);
       for (const part of ruleBody) {
-        if (prev[part] === void 0) prev[part] = {}
-        prev = prev[part]
+        if (prev[part] === void 0) prev[part] = Object.create(null);
+        prev = prev[part];
       }
-      prev.$reduce = symbol
+      prev.$reduce = symbol;
+      prev.$count = ruleBody.length;
     }
   }
-  return state
-}
 
-console.log(JSON.stringify(run(start1), null, 2))
-
-const visited = new Map()
-const getClosureState = function(state, rulesMap) {
-  visited.set(stringify(state), state)
-  for (const symbol of Object.keys(state)) {
-    if (symbol.startsWith('$')) continue
-    const closure = getClosure(symbol, rulesMap)
-    closure.forEach(item => {
-      const {ruleBody, $reduce: reduce} = item
-      let current = state
-      ruleBody.forEach(part => {
-        if (current[part] === void 0) current[part] = {}
-        current = current[part]
-      })
-      current.$reduce = reduce
-      current.$count = ruleBody.length
-    })
-  }
   for (const key of Object.keys(state)) {
-    if (key.startsWith('$')) continue
-    const id = stringify(state[key])
-    if (visited.has(id)) {
-      state[key] = visited.get(id)
-    } else {
-      getClosureState(state[key], rulesMap)
-    }
+    if (key.startsWith("$")) continue;
+    const result = run(state[key], ruleMap);
+    state[key] = result;
   }
-  return state
-}
+  return state;
+};
+const states = run(initialStart, ruleMap);
 
-const getClosure = (symbol, rulesMap)  => {
-  const rules = []
-  const pool = [symbol]
-  const visited = new Set()
-  while (pool.length !== 0) {
-    const current = pool.shift()
-    if (rulesMap.has(current) === false) continue
-    if (visited.has(current) === true) continue
-    const ruleBodys = rulesMap.get(current)
-    ruleBodys.forEach(ruleBody => {
-      rules.push({ruleBody, $reduce: current})
-      pool.push(ruleBody[0])
-    })
-    visited.add(current)
-  }
-  // console.log(rules)
-  return rules
-}
+const expression = "1+2";
+const tokens = getTokens(expression);
+const stack = [];
+const stateStack = [states];
+let state = states;
 
-function stringify(obj, replacer, space) {
-  const cache = new Set()
-  
-  return JSON.stringify(obj, function(key, value) {
-    if (typeof value === 'object' && value !== null) {
-      if (cache.has(value)) {
-        return '[Circular]'
+const shift = (symbol) => {
+  console.log(symbol.type);
+  if (state[symbol.type]) {
+    state = state[symbol.type];
+    stateStack.push(state);
+    stack.push(symbol);
+  } else {
+    if (state.$reduce) {
+      let count = state.$count;
+      const children = [];
+      while (count--) {
+        children.unshift(stack.pop());
+        stateStack.pop();
       }
-      cache.add(value)
+      const nonTerminalSymbol = new NonTerminalSymbol(state.$reduce, children);
+      state = stateStack[stateStack.length - 1];
+      stateStack.push(state);
+      shift(nonTerminalSymbol);
+    } else if (symbol.type !== "EOF") {
+      throw new Error("Uncaught Syntax Error: Unexpected " + symbol.type);
     }
-    if (replacer) {
-      return replacer(key, value)
-    }
-    return value
-  }, space)
+  }
+};
+
+for (const symbol of tokens) {
+  shift(symbol);
 }
-getClosureState(start1, ruleMap)
+shift(new EOFSymbol());
+
+console.log(stack);
